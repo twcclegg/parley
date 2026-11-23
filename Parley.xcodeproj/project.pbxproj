@@ -1,0 +1,440 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		062D286889E5D5605CA5ADC2 /* DeviceKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */; };
+		115BA5394DD311A30BE386FD /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */; };
+		12130BED6EEBB662B58E428B /* ParleyCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5FCEF482EB9C72624071E6A7 /* ParleyCore */; };
+		188A763D55CCA3D3B4EDDE1C /* ParleySSH in Frameworks */ = {isa = PBXBuildFile; productRef = D9B0B865B34A4C92E68E0E39 /* ParleySSH */; };
+		21AC7886C752B0C189DFD241 /* KnownHosts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E172C22C4B53A5D15D78D1FA /* KnownHosts.swift */; };
+		21F9CA0EFA349F2D185ECD76 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE640CBE80FC9F085F82CAB /* ChatView.swift */; };
+		2FA8C7D062DF46240F8E5001 /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F4F68A0F937A7A6811E8F7D /* Host.swift */; };
+		30CF18F334B0C342D462EA9B /* ParleyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E28A7AE2397B989CCBC179 /* ParleyApp.swift */; };
+		33A8895102D7B3ABB9516191 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F193E0FEAF35772F2316AD /* MarkdownText.swift */; };
+		3B2E099E4BE540D1DBA35674 /* TranscriptItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18079BEA2C3FE3961AF9657F /* TranscriptItemView.swift */; };
+		7CBFE13B34E90A2B02EA66A1 /* ChatSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43226FB2712346D3DE0042BA /* ChatSession.swift */; };
+		8C626949E6FBF0B6C8344B45 /* Composer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE1F01E70DBA58189EBB885 /* Composer.swift */; };
+		A4CB3B0D4A72C07520AC4935 /* HostEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */; };
+		C8D4A99F6BD1002EEA147975 /* DeviceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */; };
+		D9B894D75E7436C27709C254 /* InstallKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */; };
+		FF428F48E9C9E20EA9DB1769 /* HostListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49588A680752C34803F9CBAC /* HostListView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		18079BEA2C3FE3961AF9657F /* TranscriptItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptItemView.swift; sourceTree = "<group>"; };
+		2566E61926555FC1B44EDC09 /* Parley.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Parley.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		43226FB2712346D3DE0042BA /* ChatSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSession.swift; sourceTree = "<group>"; };
+		43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKeyView.swift; sourceTree = "<group>"; };
+		462A71D5ADBC6982D7370499 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		49588A680752C34803F9CBAC /* HostListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostListView.swift; sourceTree = "<group>"; };
+		4EE640CBE80FC9F085F82CAB /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostStore.swift; sourceTree = "<group>"; };
+		7F4F68A0F937A7A6811E8F7D /* Host.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
+		90F193E0FEAF35772F2316AD /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
+		9FE1F01E70DBA58189EBB885 /* Composer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Composer.swift; sourceTree = "<group>"; };
+		C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallKeyView.swift; sourceTree = "<group>"; };
+		DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKey.swift; sourceTree = "<group>"; };
+		E172C22C4B53A5D15D78D1FA /* KnownHosts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownHosts.swift; sourceTree = "<group>"; };
+		E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostEditorView.swift; sourceTree = "<group>"; };
+		E2E28A7AE2397B989CCBC179 /* ParleyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParleyApp.swift; sourceTree = "<group>"; };
+		E5A7E7F8E9FA62CADE73D9CD /* ParleyKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ParleyKit; path = ParleyKit; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5A6DFF008CFC4FCD2A3448F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12130BED6EEBB662B58E428B /* ParleyCore in Frameworks */,
+				188A763D55CCA3D3B4EDDE1C /* ParleySSH in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		29D2794AEE33E5C69458B358 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2566E61926555FC1B44EDC09 /* Parley.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		46F9805D8C75FC01E69061AF = {
+			isa = PBXGroup;
+			children = (
+				ED4392AD3A88ABBEBE2627C8 /* Config */,
+				99236FEB0D1DEBD81E7A8A46 /* Packages */,
+				C6E35BA958850871CC787CBA /* Parley */,
+				29D2794AEE33E5C69458B358 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		60599851DC94A29772D313CD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4EE640CBE80FC9F085F82CAB /* ChatView.swift */,
+				9FE1F01E70DBA58189EBB885 /* Composer.swift */,
+				43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */,
+				E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */,
+				49588A680752C34803F9CBAC /* HostListView.swift */,
+				C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */,
+				90F193E0FEAF35772F2316AD /* MarkdownText.swift */,
+				18079BEA2C3FE3961AF9657F /* TranscriptItemView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		99236FEB0D1DEBD81E7A8A46 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				E5A7E7F8E9FA62CADE73D9CD /* ParleyKit */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		B7C047B613CE385163E8EA15 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				43226FB2712346D3DE0042BA /* ChatSession.swift */,
+				DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */,
+				7F4F68A0F937A7A6811E8F7D /* Host.swift */,
+				612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */,
+				E172C22C4B53A5D15D78D1FA /* KnownHosts.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C6E35BA958850871CC787CBA /* Parley */ = {
+			isa = PBXGroup;
+			children = (
+				D2E82B7DCD7E463ED8CA40C0 /* App */,
+				B7C047B613CE385163E8EA15 /* Model */,
+				60599851DC94A29772D313CD /* Views */,
+			);
+			path = Parley;
+			sourceTree = "<group>";
+		};
+		D2E82B7DCD7E463ED8CA40C0 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				E2E28A7AE2397B989CCBC179 /* ParleyApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		ED4392AD3A88ABBEBE2627C8 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				462A71D5ADBC6982D7370499 /* Signing.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		ADBE804CDB9FB5E9C01F0734 /* Parley */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDC9BDE8C0BEC79340455D3E /* Build configuration list for PBXNativeTarget "Parley" */;
+			buildPhases = (
+				D9976D4D0B47A7BF61D0BDCC /* Sources */,
+				5A6DFF008CFC4FCD2A3448F7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Parley;
+			packageProductDependencies = (
+				5FCEF482EB9C72624071E6A7 /* ParleyCore */,
+				D9B0B865B34A4C92E68E0E39 /* ParleySSH */,
+			);
+			productName = Parley;
+			productReference = 2566E61926555FC1B44EDC09 /* Parley.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CA64F79FC51BC442E150484D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					ADBE804CDB9FB5E9C01F0734 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 3B3EAF6BA49598724963D25D /* Build configuration list for PBXProject "Parley" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 46F9805D8C75FC01E69061AF;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0D76F052AD431B8B50AC91A0 /* XCLocalSwiftPackageReference "ParleyKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 29D2794AEE33E5C69458B358 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				ADBE804CDB9FB5E9C01F0734 /* Parley */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D9976D4D0B47A7BF61D0BDCC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7CBFE13B34E90A2B02EA66A1 /* ChatSession.swift in Sources */,
+				21F9CA0EFA349F2D185ECD76 /* ChatView.swift in Sources */,
+				8C626949E6FBF0B6C8344B45 /* Composer.swift in Sources */,
+				C8D4A99F6BD1002EEA147975 /* DeviceKey.swift in Sources */,
+				062D286889E5D5605CA5ADC2 /* DeviceKeyView.swift in Sources */,
+				2FA8C7D062DF46240F8E5001 /* Host.swift in Sources */,
+				A4CB3B0D4A72C07520AC4935 /* HostEditorView.swift in Sources */,
+				FF428F48E9C9E20EA9DB1769 /* HostListView.swift in Sources */,
+				115BA5394DD311A30BE386FD /* HostStore.swift in Sources */,
+				D9B894D75E7436C27709C254 /* InstallKeyView.swift in Sources */,
+				21AC7886C752B0C189DFD241 /* KnownHosts.swift in Sources */,
+				33A8895102D7B3ABB9516191 /* MarkdownText.swift in Sources */,
+				30CF18F334B0C342D462EA9B /* ParleyApp.swift in Sources */,
+				3B2E099E4BE540D1DBA35674 /* TranscriptItemView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		23070DEA43A71D6AE905D68D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 462A71D5ADBC6982D7370499 /* Signing.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A6CB5CCFE2B04DC5ACB78BC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Parley;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Parley connects to SSH servers on your local network.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(PARLEY_BUNDLE_ID)";
+				PRODUCT_NAME = Parley;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E85B4DDBD306CC0533FAA641 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 462A71D5ADBC6982D7370499 /* Signing.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		FA34640DAAB69E715CDD4845 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Parley;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Parley connects to SSH servers on your local network.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(PARLEY_BUNDLE_ID)";
+				PRODUCT_NAME = Parley;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3B3EAF6BA49598724963D25D /* Build configuration list for PBXProject "Parley" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23070DEA43A71D6AE905D68D /* Debug */,
+				E85B4DDBD306CC0533FAA641 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CDC9BDE8C0BEC79340455D3E /* Build configuration list for PBXNativeTarget "Parley" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA34640DAAB69E715CDD4845 /* Debug */,
+				A6CB5CCFE2B04DC5ACB78BC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		0D76F052AD431B8B50AC91A0 /* XCLocalSwiftPackageReference "ParleyKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ParleyKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5FCEF482EB9C72624071E6A7 /* ParleyCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ParleyCore;
+		};
+		D9B0B865B34A4C92E68E0E39 /* ParleySSH */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ParleySSH;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = CA64F79FC51BC442E150484D /* Project object */;
+}

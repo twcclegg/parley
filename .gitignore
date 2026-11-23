@@ -1,0 +1,8 @@
+.DS_Store
+Config/Signing.local.xcconfig
+xcuserdata/
+DerivedData/
+.build/
+/build/
+*.xcresult
+ParleyKit/.swiftpm/

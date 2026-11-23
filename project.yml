@@ -1,0 +1,47 @@
+name: Parley
+options:
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  ParleyKit:
+    path: ParleyKit
+targets:
+  Parley:
+    type: application
+    platform: iOS
+    sources:
+      - Parley
+    dependencies:
+      - package: ParleyKit
+        product: ParleyCore
+      - package: ParleyKit
+        product: ParleySSH
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(PARLEY_BUNDLE_ID)
+        PRODUCT_NAME: Parley
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Parley
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Parley connects to SSH servers on your local network.
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        ENABLE_PREVIEWS: YES
+schemes:
+  Parley:
+    build:
+      targets:
+        Parley: all
+    test:
+      targets: []
