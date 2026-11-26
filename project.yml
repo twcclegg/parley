@@ -25,9 +25,7 @@ targets:
     supportedDestinations: [iOS, visionOS]
     sources:
       - Parley
-      # A personal icon, if there is one; git-ignored.
-      - path: Local
-        optional: true
+      - Icon
     dependencies:
       - package: ParleyKit
         product: ParleyCore

@@ -7,5 +7,6 @@ DerivedData/
 *.xcresult
 ParleyKit/.swiftpm/
 
-# Personal app icon, kept out of the public repo
+
+# Personal files kept out of the repo
 /Local/

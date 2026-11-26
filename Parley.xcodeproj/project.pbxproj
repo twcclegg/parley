@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0399ECD7A1288823B6F1DDCC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE6A1A5F5984EE03B29B552A /* Assets.xcassets */; };
 		062D286889E5D5605CA5ADC2 /* DeviceKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */; };
 		06EDC27970C8573642A4299E /* ShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF075D36618DFE8DB9AE2F5C /* ShellView.swift */; };
 		115BA5394DD311A30BE386FD /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */; };
@@ -22,10 +21,11 @@
 		4E5FDC1C2E7DAB5A8BA09A7E /* ComposerField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7202C9A409B407B3795A5B /* ComposerField.swift */; };
 		76CF83256BA846DB15E16AEE /* Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE3F8A4594772D4C7F0CB4B /* Glass.swift */; };
 		7CBFE13B34E90A2B02EA66A1 /* ChatSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43226FB2712346D3DE0042BA /* ChatSession.swift */; };
+		802CE568E99DB64F9F575779 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F171A796A50C8B1F77F60A98 /* Assets.xcassets */; };
 		8C626949E6FBF0B6C8344B45 /* Composer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE1F01E70DBA58189EBB885 /* Composer.swift */; };
-		9303EC2856CD3AD556BC45DF /* Parley.icon in Resources */ = {isa = PBXBuildFile; fileRef = B47363E026E67B8C97D94266 /* Parley.icon */; };
 		9B0D59E4D43E2CD917AD1839 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = E6EF76D8084EBBAAC0D3F79E /* SwiftTerm */; };
 		A4CB3B0D4A72C07520AC4935 /* HostEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */; };
+		C34191D7C3B9625B942C1225 /* Parley.icon in Resources */ = {isa = PBXBuildFile; fileRef = 82112BC230AB907535575974 /* Parley.icon */; };
 		C8D4A99F6BD1002EEA147975 /* DeviceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */; };
 		D46D0E419298A561E59F70CF /* ShellSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6E0A54AE9D03A7F6661292 /* ShellSession.swift */; };
 		D6835BC98DCAFF894224FE86 /* ImagePreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A777A1D9B5BC8CC3E8500E19 /* ImagePreparation.swift */; };
@@ -44,11 +44,10 @@
 		4EE640CBE80FC9F085F82CAB /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostStore.swift; sourceTree = "<group>"; };
 		7F4F68A0F937A7A6811E8F7D /* Host.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
+		82112BC230AB907535575974 /* Parley.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = Parley.icon; sourceTree = "<group>"; };
 		90F193E0FEAF35772F2316AD /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
 		9FE1F01E70DBA58189EBB885 /* Composer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Composer.swift; sourceTree = "<group>"; };
 		A777A1D9B5BC8CC3E8500E19 /* ImagePreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreparation.swift; sourceTree = "<group>"; };
-		B47363E026E67B8C97D94266 /* Parley.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = Parley.icon; sourceTree = "<group>"; };
-		BE6A1A5F5984EE03B29B552A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallKeyView.swift; sourceTree = "<group>"; };
 		DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKey.swift; sourceTree = "<group>"; };
 		E172C22C4B53A5D15D78D1FA /* KnownHosts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownHosts.swift; sourceTree = "<group>"; };
@@ -57,6 +56,7 @@
 		E5A7E7F8E9FA62CADE73D9CD /* ParleyKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ParleyKit; path = ParleyKit; sourceTree = SOURCE_ROOT; };
 		EA6E0A54AE9D03A7F6661292 /* ShellSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellSession.swift; sourceTree = "<group>"; };
 		EF075D36618DFE8DB9AE2F5C /* ShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellView.swift; sourceTree = "<group>"; };
+		F171A796A50C8B1F77F60A98 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FBE3F8A4594772D4C7F0CB4B /* Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Glass.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -74,15 +74,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		137600A00EF3112A294BC2EB /* Local */ = {
-			isa = PBXGroup;
-			children = (
-				BE6A1A5F5984EE03B29B552A /* Assets.xcassets */,
-				B47363E026E67B8C97D94266 /* Parley.icon */,
-			);
-			path = Local;
-			sourceTree = "<group>";
-		};
 		29D2794AEE33E5C69458B358 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -95,7 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				ED4392AD3A88ABBEBE2627C8 /* Config */,
-				137600A00EF3112A294BC2EB /* Local */,
+				73A4255B842A2252D0DC6234 /* Icon */,
 				99236FEB0D1DEBD81E7A8A46 /* Packages */,
 				C6E35BA958850871CC787CBA /* Parley */,
 				29D2794AEE33E5C69458B358 /* Products */,
@@ -118,6 +109,15 @@
 				18079BEA2C3FE3961AF9657F /* TranscriptItemView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		73A4255B842A2252D0DC6234 /* Icon */ = {
+			isa = PBXGroup;
+			children = (
+				F171A796A50C8B1F77F60A98 /* Assets.xcassets */,
+				82112BC230AB907535575974 /* Parley.icon */,
+			);
+			path = Icon;
 			sourceTree = "<group>";
 		};
 		99236FEB0D1DEBD81E7A8A46 /* Packages */ = {
@@ -236,8 +236,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0399ECD7A1288823B6F1DDCC /* Assets.xcassets in Resources */,
-				9303EC2856CD3AD556BC45DF /* Parley.icon in Resources */,
+				802CE568E99DB64F9F575779 /* Assets.xcassets in Resources */,
+				C34191D7C3B9625B942C1225 /* Parley.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
