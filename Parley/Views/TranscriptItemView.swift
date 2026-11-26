@@ -7,8 +7,8 @@ struct TranscriptItemView: View {
 
     var body: some View {
         switch item.kind {
-        case .user(let text):
-            UserBubble(text: text)
+        case .user(let text, let images):
+            UserBubble(text: text, images: images)
         case .assistant(let text):
             if !text.isEmpty { MarkdownText(text: text) }
         case .thinking(let text):
@@ -32,15 +32,29 @@ struct TranscriptItemView: View {
 
 private struct UserBubble: View {
     let text: String
+    let images: [ImageAttachment]
 
     var body: some View {
-        HStack {
-            Spacer(minLength: 48)
-            Text(text)
-                .textSelection(.enabled)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(.tint.opacity(0.18), in: .rect(cornerRadius: 20))
+        VStack(alignment: .trailing, spacing: 6) {
+            if !images.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(images) { AttachmentThumbnail(attachment: $0) }
+                    }
+                }
+                .defaultScrollAnchor(.trailing)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            if !text.isEmpty {
+                HStack {
+                    Spacer(minLength: 48)
+                    Text(text)
+                        .textSelection(.enabled)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(.tint.opacity(0.18), in: .rect(cornerRadius: 20))
+                }
+            }
         }
     }
 }
@@ -99,6 +113,13 @@ private struct ToolCallView: View {
             }
             .buttonStyle(.plain)
 
+            if !call.resultImages.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(call.resultImages) { AttachmentThumbnail(attachment: $0) }
+                    }
+                }
+            }
             if expanded, let result = call.result, !result.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     Text(result.count > 6000 ? String(result.prefix(6000)) + "\n…" : result)

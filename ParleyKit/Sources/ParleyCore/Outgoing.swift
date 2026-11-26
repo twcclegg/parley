@@ -2,9 +2,14 @@ import Foundation
 
 /// Messages Parley writes to Claude Code's stdin (`--input-format stream-json`).
 public enum Outgoing {
-    /// A user turn.
-    public static func user(_ text: String) -> JSON {
-        ["type": "user", "message": ["role": "user", "content": .string(text)]]
+    /// A user turn: text, with any images before it.
+    public static func user(_ text: String, images: [ImageAttachment] = []) -> JSON {
+        guard !images.isEmpty else {
+            return ["type": "user", "message": ["role": "user", "content": .string(text)]]
+        }
+        var content = images.map(\.contentBlock)
+        if !text.isEmpty { content.append(["type": "text", "text": .string(text)]) }
+        return ["type": "user", "message": ["role": "user", "content": .array(content)]]
     }
 
     /// Asks Claude Code to start its control protocol. Its response lists the slash commands.

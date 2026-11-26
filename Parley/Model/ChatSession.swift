@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import Observation
 import ParleyCore
 import ParleySSH
@@ -20,6 +21,8 @@ final class ChatSession {
     private(set) var phase: Phase = .idle
     private(set) var transcript = Transcript()
     var draft = ""
+    /// Images to send with the next message.
+    var attachments: [ImageAttachment] = []
 
     private let store: HostStore
     private let keys: DeviceKeyStore
@@ -48,7 +51,25 @@ final class ChatSession {
     }
 
     var canSend: Bool {
-        phase == .connected && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        phase == .connected && (!draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !attachments.isEmpty)
+    }
+
+    func addImages(_ images: [UIImage]) {
+        for image in images {
+            if let attachment = ImagePreparation.attachment(from: image) {
+                attachments.append(attachment)
+            } else {
+                transcript.notice("That image is too large to send.", isError: true)
+            }
+        }
+    }
+
+    func addImageData(_ data: Data) {
+        if let attachment = ImagePreparation.attachment(from: data) {
+            attachments.append(attachment)
+        } else {
+            transcript.notice("That image couldn't be read or is too large to send.", isError: true)
+        }
     }
 
     /// Whether Claude Code may still be running on the server from an earlier connection.
@@ -226,13 +247,16 @@ final class ChatSession {
 
     func sendDraft() async {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty, phase == .connected else { return }
+        let images = attachments
+        guard !text.isEmpty || !images.isEmpty, phase == .connected else { return }
         draft = ""
-        transcript.beginUserTurn(text)
+        attachments = []
+        transcript.beginUserTurn(text, images: images)
         do {
-            try await send(Outgoing.user(text))
+            try await send(Outgoing.user(text, images: images))
         } catch {
             draft = text
+            attachments = images
             transcript.notice("Couldn't send: \(Self.describe(error))", isError: true)
         }
     }

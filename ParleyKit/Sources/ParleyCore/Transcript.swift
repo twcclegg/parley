@@ -6,8 +6,8 @@ public struct TranscriptItem: Identifiable, Sendable, Equatable {
     public var kind: Kind
 
     public enum Kind: Sendable, Equatable {
-        /// What you sent.
-        case user(String)
+        /// What you sent, with any images.
+        case user(String, images: [ImageAttachment] = [])
         /// Claude's reply, as Markdown. Grows while it streams.
         case assistant(String)
         /// Claude's visible reasoning, when the model shares it.
@@ -28,6 +28,8 @@ public struct ToolCall: Sendable, Equatable {
     public let name: String
     public let input: JSON
     public var result: String?
+    /// Images in the result, such as a picture the Read tool opened.
+    public var resultImages: [ImageAttachment] = []
     public var isError: Bool
 
     /// One line saying what the call does, such as the command or the file.
@@ -161,8 +163,8 @@ public struct Transcript: Sendable, Equatable {
     public init() {}
 
     /// Adds what you sent and marks the turn busy.
-    public mutating func beginUserTurn(_ text: String) {
-        append(TranscriptItem(id: nextLocalId(), kind: .user(text)))
+    public mutating func beginUserTurn(_ text: String, images: [ImageAttachment] = []) {
+        append(TranscriptItem(id: nextLocalId(), kind: .user(text, images: images)))
         unechoed.append(text)
         isBusy = true
     }
@@ -356,9 +358,11 @@ public struct Transcript: Sendable, Equatable {
         }
         if let index = unechoed.firstIndex(of: text) {
             unechoed.remove(at: index)
-        } else if !text.isEmpty {
+        } else {
+            let images = ImageAttachment.all(in: body["content"])
+            guard !text.isEmpty || !images.isEmpty else { return }
             // Sent before this transcript began, such as from an earlier connection.
-            append(TranscriptItem(id: nextLocalId(), kind: .user(text)))
+            append(TranscriptItem(id: nextLocalId(), kind: .user(text, images: images)))
             isBusy = true
         }
     }
@@ -376,6 +380,7 @@ public struct Transcript: Sendable, Equatable {
                 case .tool(var call) = items[position].kind
             else { continue }
             call.result = Self.text(of: block["content"])
+            call.resultImages = ImageAttachment.all(in: block["content"])
             call.isError = block["is_error"]?.bool ?? false
             items[position].kind = .tool(call)
         }
@@ -529,7 +534,6 @@ public struct Transcript: Sendable, Equatable {
         case .array(let blocks):
             return blocks.compactMap { block in
                 if block["type"]?.string == "text" { return block["text"]?.string }
-                if block["type"]?.string == "image" { return "[image]" }
                 return nil
             }.joined(separator: "\n")
         default:

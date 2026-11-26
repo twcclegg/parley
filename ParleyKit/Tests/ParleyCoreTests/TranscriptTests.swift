@@ -86,6 +86,38 @@ import Testing
     }
 }
 
+@Suite struct ImageTests {
+    @Test func sendsImagesBeforeTheText() throws {
+        let image = ImageAttachment(mediaType: "image/png", data: Data([1, 2, 3]))
+        let message = Outgoing.user("What is this?", images: [image])
+        let content = try #require(message["message"]?["content"]?.array)
+        #expect(content.map { $0["type"]?.string } == ["image", "text"])
+        #expect(content[0]["source"]?["data"]?.string == "AQID")
+    }
+
+    @Test func showsImagesFromAnEchoAndFromToolResults() {
+        var transcript = Transcript()
+        let block: JSON = ["type": "image", "source": ["type": "base64", "media_type": "image/png", "data": "AQID"]]
+        transcript.apply(["type": "user", "isReplay": true, "message": ["role": "user", "content": [block, ["type": "text", "text": "look"]]]])
+        guard case .user("look", let images) = transcript.items.last?.kind else { Issue.record("expected the message"); return }
+        #expect(images.first?.data == Data([1, 2, 3]))
+
+        transcript.apply(["type": "assistant", "message": ["id": "m1", "content": [["type": "tool_use", "id": "t1", "name": "Read", "input": ["file_path": "/a.png"]]]]])
+        transcript.apply(["type": "user", "message": ["role": "user", "content": [["type": "tool_result", "tool_use_id": "t1", "content": [block]]]]])
+        guard case .tool(let call) = transcript.items.last?.kind else { Issue.record("expected the tool"); return }
+        #expect(call.resultImages.count == 1)
+        #expect(call.result == "")
+    }
+
+    @Test func anImageOnlyMessageIsNotShownTwice() {
+        var transcript = Transcript()
+        let image = ImageAttachment(mediaType: "image/png", data: Data([1, 2, 3]))
+        transcript.beginUserTurn("", images: [image])
+        transcript.apply(["type": "user", "isReplay": true, "message": ["role": "user", "content": [image.contentBlock]]])
+        #expect(transcript.items.count == 1)
+    }
+}
+
 @Suite struct ReplayTests {
     @Test func echoedMessagesAreNotShownTwice() {
         var transcript = Transcript()
@@ -95,7 +127,7 @@ import Testing
         // A message sent from an earlier connection shows when its echo arrives.
         transcript.apply(["type": "user", "isReplay": true, "message": ["role": "user", "content": "earlier"]])
         #expect(transcript.items.count == 2)
-        guard case .user("earlier") = transcript.items.last?.kind else { Issue.record("expected the earlier message"); return }
+        guard case .user("earlier", _) = transcript.items.last?.kind else { Issue.record("expected the earlier message"); return }
     }
 
     @Test func replayShowsHowPermissionsWereAnswered() {
