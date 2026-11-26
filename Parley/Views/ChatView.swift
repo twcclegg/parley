@@ -25,7 +25,9 @@ struct ChatView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
+            #if !os(visionOS)
             .scrollDismissesKeyboard(.interactively)
+            #endif
             .defaultScrollAnchor(.bottom)
             .onScrollGeometryChange(for: Bool.self) { geometry in
                 geometry.contentOffset.y + geometry.containerSize.height >= geometry.contentSize.height - 80
@@ -142,10 +144,10 @@ private struct StartView: View {
                 Text("Claude Code runs on the server in \(session.host.directory).")
             } actions: {
                 Button("New Conversation") { Task { await session.start(continuing: false) } }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.parleyGlassProminent)
                 if session.host.lastSessionId != nil {
                     Button("Continue Last Conversation") { Task { await session.start(continuing: true) } }
-                        .buttonStyle(.glass)
+                        .buttonStyle(.parleyGlass)
                 }
             }
         case .connecting:
@@ -176,17 +178,17 @@ private struct ConnectionBanner: View {
             .font(.subheadline)
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .glassEffect()
+            .parleyGlass()
         case .ended:
             HStack(spacing: 12) {
                 Text(session.hasRunOnServer ? "Disconnected · still running" : "Disconnected").font(.subheadline)
                 Button("Reconnect") { Task { await session.start(continuing: session.transcript.sessionId != nil) } }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.parleyGlassProminent)
             }
             .padding(.leading, 16)
             .padding(.trailing, 6)
             .padding(.vertical, 6)
-            .glassEffect()
+            .parleyGlass()
             .padding(.bottom, 8)
         default:
             EmptyView()

@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ParleyKit",
-    platforms: [.iOS(.v26), .macOS(.v15)],
+    platforms: [.iOS(.v26), .visionOS(.v26), .macOS(.v15)],
     products: [
         .library(name: "ParleyCore", targets: ["ParleyCore"]),
         .library(name: "ParleySSH", targets: ["ParleySSH"]),

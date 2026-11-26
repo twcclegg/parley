@@ -37,7 +37,7 @@ struct HostListView: View {
                         Text("Add a server you reach over SSH, then chat with Claude Code running there.")
                     } actions: {
                         Button("Add Server") { editing = Host() }
-                            .buttonStyle(.glassProminent)
+                            .buttonStyle(.parleyGlassProminent)
                     }
                 }
             }

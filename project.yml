@@ -2,6 +2,7 @@ name: Parley
 options:
   deploymentTarget:
     iOS: "26.0"
+    visionOS: "26.0"
   createIntermediateGroups: true
 configFiles:
   Debug: Config/Signing.xcconfig
@@ -20,7 +21,8 @@ packages:
 targets:
   Parley:
     type: application
-    platform: iOS
+    platform: auto
+    supportedDestinations: [iOS, visionOS]
     sources:
       - Parley
     dependencies:

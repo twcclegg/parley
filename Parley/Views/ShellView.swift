@@ -16,17 +16,17 @@ struct ShellView: View {
                     case .connecting:
                         ProgressView("Connecting…")
                             .padding()
-                            .glassEffect(in: .rect(cornerRadius: 16))
+                            .parleyGlass(in: .rect(cornerRadius: 16))
                     case .ended(let reason):
                         VStack(spacing: 12) {
                             Text("Shell disconnected").font(.headline)
                             if let reason { Text(reason).font(.footnote).foregroundStyle(.secondary) }
                             Button("Reconnect") { Task { await shell.start() } }
-                                .buttonStyle(.glassProminent)
+                                .buttonStyle(.parleyGlassProminent)
                         }
                         .multilineTextAlignment(.center)
                         .padding(20)
-                        .glassEffect(in: .rect(cornerRadius: 20))
+                        .parleyGlass(in: .rect(cornerRadius: 20))
                         .padding()
                     case .idle, .connected:
                         EmptyView()

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		062D286889E5D5605CA5ADC2 /* DeviceKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */; };
+		06EDC27970C8573642A4299E /* ShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF075D36618DFE8DB9AE2F5C /* ShellView.swift */; };
 		115BA5394DD311A30BE386FD /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */; };
 		12130BED6EEBB662B58E428B /* ParleyCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5FCEF482EB9C72624071E6A7 /* ParleyCore */; };
 		188A763D55CCA3D3B4EDDE1C /* ParleySSH in Frameworks */ = {isa = PBXBuildFile; productRef = D9B0B865B34A4C92E68E0E39 /* ParleySSH */; };
@@ -18,10 +19,13 @@
 		33A8895102D7B3ABB9516191 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F193E0FEAF35772F2316AD /* MarkdownText.swift */; };
 		3B2E099E4BE540D1DBA35674 /* TranscriptItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18079BEA2C3FE3961AF9657F /* TranscriptItemView.swift */; };
 		4E5FDC1C2E7DAB5A8BA09A7E /* ComposerField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7202C9A409B407B3795A5B /* ComposerField.swift */; };
+		76CF83256BA846DB15E16AEE /* Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE3F8A4594772D4C7F0CB4B /* Glass.swift */; };
 		7CBFE13B34E90A2B02EA66A1 /* ChatSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43226FB2712346D3DE0042BA /* ChatSession.swift */; };
 		8C626949E6FBF0B6C8344B45 /* Composer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE1F01E70DBA58189EBB885 /* Composer.swift */; };
+		9B0D59E4D43E2CD917AD1839 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = E6EF76D8084EBBAAC0D3F79E /* SwiftTerm */; };
 		A4CB3B0D4A72C07520AC4935 /* HostEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */; };
 		C8D4A99F6BD1002EEA147975 /* DeviceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */; };
+		D46D0E419298A561E59F70CF /* ShellSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6E0A54AE9D03A7F6661292 /* ShellSession.swift */; };
 		D6835BC98DCAFF894224FE86 /* ImagePreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A777A1D9B5BC8CC3E8500E19 /* ImagePreparation.swift */; };
 		D9B894D75E7436C27709C254 /* InstallKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */; };
 		FF428F48E9C9E20EA9DB1769 /* HostListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49588A680752C34803F9CBAC /* HostListView.swift */; };
@@ -47,6 +51,9 @@
 		E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostEditorView.swift; sourceTree = "<group>"; };
 		E2E28A7AE2397B989CCBC179 /* ParleyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParleyApp.swift; sourceTree = "<group>"; };
 		E5A7E7F8E9FA62CADE73D9CD /* ParleyKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ParleyKit; path = ParleyKit; sourceTree = SOURCE_ROOT; };
+		EA6E0A54AE9D03A7F6661292 /* ShellSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellSession.swift; sourceTree = "<group>"; };
+		EF075D36618DFE8DB9AE2F5C /* ShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellView.swift; sourceTree = "<group>"; };
+		FBE3F8A4594772D4C7F0CB4B /* Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Glass.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +63,7 @@
 			files = (
 				12130BED6EEBB662B58E428B /* ParleyCore in Frameworks */,
 				188A763D55CCA3D3B4EDDE1C /* ParleySSH in Frameworks */,
+				9B0D59E4D43E2CD917AD1839 /* SwiftTerm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,10 +95,12 @@
 				9FE1F01E70DBA58189EBB885 /* Composer.swift */,
 				0D7202C9A409B407B3795A5B /* ComposerField.swift */,
 				43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */,
+				FBE3F8A4594772D4C7F0CB4B /* Glass.swift */,
 				E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */,
 				49588A680752C34803F9CBAC /* HostListView.swift */,
 				C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */,
 				90F193E0FEAF35772F2316AD /* MarkdownText.swift */,
+				EF075D36618DFE8DB9AE2F5C /* ShellView.swift */,
 				18079BEA2C3FE3961AF9657F /* TranscriptItemView.swift */,
 			);
 			path = Views;
@@ -113,6 +123,7 @@
 				612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */,
 				A777A1D9B5BC8CC3E8500E19 /* ImagePreparation.swift */,
 				E172C22C4B53A5D15D78D1FA /* KnownHosts.swift */,
+				EA6E0A54AE9D03A7F6661292 /* ShellSession.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -161,6 +172,7 @@
 			packageProductDependencies = (
 				5FCEF482EB9C72624071E6A7 /* ParleyCore */,
 				D9B0B865B34A4C92E68E0E39 /* ParleySSH */,
+				E6EF76D8084EBBAAC0D3F79E /* SwiftTerm */,
 			);
 			productName = Parley;
 			productReference = 2566E61926555FC1B44EDC09 /* Parley.app */;
@@ -191,6 +203,7 @@
 			mainGroup = 46F9805D8C75FC01E69061AF;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				2E9D667D3CA71F225364AFDE /* XCRemoteSwiftPackageReference "SwiftTerm" */,
 				0D76F052AD431B8B50AC91A0 /* XCLocalSwiftPackageReference "ParleyKit" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -214,6 +227,7 @@
 				4E5FDC1C2E7DAB5A8BA09A7E /* ComposerField.swift in Sources */,
 				C8D4A99F6BD1002EEA147975 /* DeviceKey.swift in Sources */,
 				062D286889E5D5605CA5ADC2 /* DeviceKeyView.swift in Sources */,
+				76CF83256BA846DB15E16AEE /* Glass.swift in Sources */,
 				2FA8C7D062DF46240F8E5001 /* Host.swift in Sources */,
 				A4CB3B0D4A72C07520AC4935 /* HostEditorView.swift in Sources */,
 				FF428F48E9C9E20EA9DB1769 /* HostListView.swift in Sources */,
@@ -223,6 +237,8 @@
 				21AC7886C752B0C189DFD241 /* KnownHosts.swift in Sources */,
 				33A8895102D7B3ABB9516191 /* MarkdownText.swift in Sources */,
 				30CF18F334B0C342D462EA9B /* ParleyApp.swift in Sources */,
+				D46D0E419298A561E59F70CF /* ShellSession.swift in Sources */,
+				06EDC27970C8573642A4299E /* ShellView.swift in Sources */,
 				3B2E099E4BE540D1DBA35674 /* TranscriptItemView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -289,10 +305,11 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -315,7 +332,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PARLEY_BUNDLE_ID)";
 				PRODUCT_NAME = Parley;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -372,10 +393,11 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
@@ -398,7 +420,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PARLEY_BUNDLE_ID)";
 				PRODUCT_NAME = Parley;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -433,6 +459,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		2E9D667D3CA71F225364AFDE /* XCRemoteSwiftPackageReference "SwiftTerm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/migueldeicaza/SwiftTerm";
+			requirement = {
+				kind = exactVersion;
+				version = 1.18.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		5FCEF482EB9C72624071E6A7 /* ParleyCore */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -441,6 +478,11 @@
 		D9B0B865B34A4C92E68E0E39 /* ParleySSH */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ParleySSH;
+		};
+		E6EF76D8084EBBAAC0D3F79E /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2E9D667D3CA71F225364AFDE /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

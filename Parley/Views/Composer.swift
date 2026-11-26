@@ -12,13 +12,13 @@ struct Composer: View {
         VStack(spacing: 8) {
             if !matchingCommands.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    GlassEffectContainer(spacing: 8) {
+                    ParleyGlassGroup(spacing: 8) {
                         HStack(spacing: 8) {
                             ForEach(matchingCommands) { command in
                                 Button("/" + command.name) {
                                     session.draft = "/" + command.name + " "
                                 }
-                                .buttonStyle(.glass)
+                                .buttonStyle(.parleyGlass)
                                 .accessibilityHint(command.description)
                             }
                         }
@@ -45,7 +45,7 @@ struct Composer: View {
                     .padding(.horizontal, 16)
                 }
             }
-            GlassEffectContainer(spacing: 10) {
+            ParleyGlassGroup(spacing: 10) {
                 HStack(alignment: .bottom, spacing: 10) {
                     PhotosPicker(selection: $pickedPhotos, maxSelectionCount: 10, matching: .images) {
                         Label("Add Photos", systemImage: "plus")
@@ -53,13 +53,13 @@ struct Composer: View {
                             .font(.body.weight(.semibold))
                             .frame(width: 26, height: 26)
                     }
-                    .buttonStyle(.glass)
+                    .buttonStyle(.parleyGlass)
                     .buttonBorderShape(.circle)
 
                     ComposerField(text: $session.draft, placeholder: "Message Claude") { images in
                         session.addImages(images)
                     }
-                    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 22))
+                    .parleyGlass(interactive: true, in: .rect(cornerRadius: 22))
 
                     if session.transcript.isBusy && session.draft.isEmpty && session.attachments.isEmpty {
                         Button("Stop", systemImage: "stop.fill") {
@@ -68,7 +68,7 @@ struct Composer: View {
                         .labelStyle(.iconOnly)
                         .font(.body.weight(.semibold))
                         .frame(width: 26, height: 26)
-                        .buttonStyle(.glassProminent)
+                        .buttonStyle(.parleyGlassProminent)
                         .buttonBorderShape(.circle)
                         .tint(.red)
                     } else {
@@ -78,7 +78,7 @@ struct Composer: View {
                         .labelStyle(.iconOnly)
                         .font(.body.weight(.semibold))
                         .frame(width: 26, height: 26)
-                        .buttonStyle(.glassProminent)
+                        .buttonStyle(.parleyGlassProminent)
                         .buttonBorderShape(.circle)
                         .disabled(!session.canSend)
                     }

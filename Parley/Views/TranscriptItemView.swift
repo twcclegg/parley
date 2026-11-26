@@ -202,16 +202,16 @@ private struct PermissionCard: View {
             }
             switch request.state {
             case .pending:
-                GlassEffectContainer(spacing: 8) {
+                ParleyGlassGroup(spacing: 8) {
                     HStack(spacing: 8) {
                         Button("Deny", role: .destructive) { Task { await session.deny(request) } }
-                            .buttonStyle(.glass)
+                            .buttonStyle(.parleyGlass)
                         if !request.suggestedRules.isEmpty {
                             Button("Always Allow") { Task { await session.allow(request, always: true) } }
-                                .buttonStyle(.glass)
+                                .buttonStyle(.parleyGlass)
                         }
                         Button("Allow") { Task { await session.allow(request, always: false) } }
-                            .buttonStyle(.glassProminent)
+                            .buttonStyle(.parleyGlassProminent)
                     }
                 }
                 .disabled(session.phase != .connected)
@@ -227,7 +227,7 @@ private struct PermissionCard: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassEffect(.regular.tint(request.state == .pending ? .orange.opacity(0.25) : .clear), in: .rect(cornerRadius: 20))
+        .parleyGlass(tint: request.state == .pending ? .orange.opacity(0.25) : .clear, in: .rect(cornerRadius: 20))
     }
 
     private var title: String {
@@ -261,11 +261,11 @@ private struct QuestionCard: View {
             case .pending:
                 HStack {
                     Button("Skip", role: .cancel) { Task { await session.decline(request) } }
-                        .buttonStyle(.glass)
+                        .buttonStyle(.parleyGlass)
                     Spacer()
                     if needsSubmit {
                         Button("Send Answers") { submit() }
-                            .buttonStyle(.glassProminent)
+                            .buttonStyle(.parleyGlassProminent)
                             .disabled(!allAnswered)
                     }
                 }
@@ -281,7 +281,7 @@ private struct QuestionCard: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassEffect(.regular.tint(request.state == .pending ? .blue.opacity(0.2) : .clear), in: .rect(cornerRadius: 20))
+        .parleyGlass(tint: request.state == .pending ? .blue.opacity(0.2) : .clear, in: .rect(cornerRadius: 20))
     }
 
     private func optionButton(_ option: QuestionRequest.Option, in question: QuestionRequest.Question) -> some View {
