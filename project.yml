@@ -25,6 +25,9 @@ targets:
     supportedDestinations: [iOS, visionOS]
     sources:
       - Parley
+      # A personal icon, if there is one; git-ignored.
+      - path: Local
+        optional: true
     dependencies:
       - package: ParleyKit
         product: ParleyCore
@@ -35,6 +38,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(PARLEY_BUNDLE_ID)
         PRODUCT_NAME: Parley
+        ASSETCATALOG_COMPILER_APPICON_NAME: Parley
+        "ASSETCATALOG_COMPILER_APPICON_NAME[sdk=xros*]": AppIcon
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Parley

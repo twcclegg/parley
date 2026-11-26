@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0399ECD7A1288823B6F1DDCC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE6A1A5F5984EE03B29B552A /* Assets.xcassets */; };
 		062D286889E5D5605CA5ADC2 /* DeviceKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CD4972F1A2C22A3E330824 /* DeviceKeyView.swift */; };
 		06EDC27970C8573642A4299E /* ShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF075D36618DFE8DB9AE2F5C /* ShellView.swift */; };
 		115BA5394DD311A30BE386FD /* HostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612A5EF9ABDCB9B7CDEE2C46 /* HostStore.swift */; };
@@ -22,6 +23,7 @@
 		76CF83256BA846DB15E16AEE /* Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE3F8A4594772D4C7F0CB4B /* Glass.swift */; };
 		7CBFE13B34E90A2B02EA66A1 /* ChatSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43226FB2712346D3DE0042BA /* ChatSession.swift */; };
 		8C626949E6FBF0B6C8344B45 /* Composer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE1F01E70DBA58189EBB885 /* Composer.swift */; };
+		9303EC2856CD3AD556BC45DF /* Parley.icon in Resources */ = {isa = PBXBuildFile; fileRef = B47363E026E67B8C97D94266 /* Parley.icon */; };
 		9B0D59E4D43E2CD917AD1839 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = E6EF76D8084EBBAAC0D3F79E /* SwiftTerm */; };
 		A4CB3B0D4A72C07520AC4935 /* HostEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24E13F3E20FBAF147AC1070 /* HostEditorView.swift */; };
 		C8D4A99F6BD1002EEA147975 /* DeviceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */; };
@@ -45,6 +47,8 @@
 		90F193E0FEAF35772F2316AD /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
 		9FE1F01E70DBA58189EBB885 /* Composer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Composer.swift; sourceTree = "<group>"; };
 		A777A1D9B5BC8CC3E8500E19 /* ImagePreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreparation.swift; sourceTree = "<group>"; };
+		B47363E026E67B8C97D94266 /* Parley.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = Parley.icon; sourceTree = "<group>"; };
+		BE6A1A5F5984EE03B29B552A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1E6AD471445F4595BF85F13 /* InstallKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallKeyView.swift; sourceTree = "<group>"; };
 		DC773B9F958B8D76ADBA4E4D /* DeviceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKey.swift; sourceTree = "<group>"; };
 		E172C22C4B53A5D15D78D1FA /* KnownHosts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownHosts.swift; sourceTree = "<group>"; };
@@ -70,6 +74,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		137600A00EF3112A294BC2EB /* Local */ = {
+			isa = PBXGroup;
+			children = (
+				BE6A1A5F5984EE03B29B552A /* Assets.xcassets */,
+				B47363E026E67B8C97D94266 /* Parley.icon */,
+			);
+			path = Local;
+			sourceTree = "<group>";
+		};
 		29D2794AEE33E5C69458B358 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -82,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				ED4392AD3A88ABBEBE2627C8 /* Config */,
+				137600A00EF3112A294BC2EB /* Local */,
 				99236FEB0D1DEBD81E7A8A46 /* Packages */,
 				C6E35BA958850871CC787CBA /* Parley */,
 				29D2794AEE33E5C69458B358 /* Products */,
@@ -162,6 +176,7 @@
 			buildConfigurationList = CDC9BDE8C0BEC79340455D3E /* Build configuration list for PBXNativeTarget "Parley" */;
 			buildPhases = (
 				D9976D4D0B47A7BF61D0BDCC /* Sources */,
+				BF38B7EB6332F7FECF02C1C8 /* Resources */,
 				5A6DFF008CFC4FCD2A3448F7 /* Frameworks */,
 			);
 			buildRules = (
@@ -215,6 +230,18 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BF38B7EB6332F7FECF02C1C8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0399ECD7A1288823B6F1DDCC /* Assets.xcassets in Resources */,
+				9303EC2856CD3AD556BC45DF /* Parley.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D9976D4D0B47A7BF61D0BDCC /* Sources */ = {
@@ -316,7 +343,8 @@
 		A6CB5CCFE2B04DC5ACB78BC3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Parley;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=xros*]" = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -404,7 +432,8 @@
 		FA34640DAAB69E715CDD4845 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Parley;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=xros*]" = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
