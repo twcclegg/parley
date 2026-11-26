@@ -92,6 +92,16 @@ public final class SSHConnection: @unchecked Sendable {
 
     /// Runs a command, with its stdin, stdout and stderr open as streams.
     public func exec(_ command: String) async throws -> SSHExecChannel {
+        try await open(.exec(command))
+    }
+
+    /// Starts the user's login shell on a pseudo-terminal, as `ssh` does with no command. With a
+    /// terminal, `sudo` and other password prompts work, and what's typed goes only to the server.
+    public func shell(terminal: SSHTerminal) async throws -> SSHExecChannel {
+        try await open(.shell(terminal))
+    }
+
+    private func open(_ request: ExecHandler.Request) async throws -> SSHExecChannel {
         let (stdout, stdoutContinuation) = AsyncStream<Data>.makeStream()
         let (stderr, stderrContinuation) = AsyncStream<Data>.makeStream()
         let exitStatus = channel.eventLoop.makePromise(of: Int?.self)
@@ -108,7 +118,7 @@ public final class SSHConnection: @unchecked Sendable {
                     return child.eventLoop.makeCompletedFuture {
                         try child.pipeline.syncOperations.addHandler(
                             ExecHandler(
-                                command: command,
+                                request: request,
                                 stdout: stdoutContinuation,
                                 stderr: stderrContinuation,
                                 exitStatus: exitStatus
@@ -182,6 +192,13 @@ public final class SSHExecChannel: @unchecked Sendable {
 
     public func close() async {
         try? await channel.close().get()
+    }
+
+    /// Tells the server the terminal's new size, for a shell started with `shell(terminal:)`.
+    public func resize(columns: Int, rows: Int) {
+        let request = SSHChannelRequestEvent.WindowChangeRequest(
+            terminalCharacterWidth: columns, terminalRowHeight: rows, terminalPixelWidth: 0, terminalPixelHeight: 0)
+        channel.triggerUserOutboundEvent(request, promise: nil)
     }
 
     /// The command's exit status once it has ended; nil if the server didn't say.
@@ -306,22 +323,40 @@ private final class AuthenticationWatcher: ChannelInboundHandler {
     }
 }
 
+/// The size and type of a pseudo-terminal.
+public struct SSHTerminal: Sendable {
+    public var type: String
+    public var columns: Int
+    public var rows: Int
+
+    public init(type: String = "xterm-256color", columns: Int, rows: Int) {
+        self.type = type
+        self.columns = columns
+        self.rows = rows
+    }
+}
+
 private final class ExecHandler: ChannelInboundHandler {
     typealias InboundIn = SSHChannelData
 
-    private let command: String
+    enum Request {
+        case exec(String)
+        case shell(SSHTerminal)
+    }
+
+    private let request: Request
     private let stdout: AsyncStream<Data>.Continuation
     private let stderr: AsyncStream<Data>.Continuation
     private let exitStatus: EventLoopPromise<Int?>
     private var status: Int?
 
     init(
-        command: String,
+        request: Request,
         stdout: AsyncStream<Data>.Continuation,
         stderr: AsyncStream<Data>.Continuation,
         exitStatus: EventLoopPromise<Int?>
     ) {
-        self.command = command
+        self.request = request
         self.stdout = stdout
         self.stderr = stderr
         self.exitStatus = exitStatus
@@ -332,8 +367,23 @@ private final class ExecHandler: ChannelInboundHandler {
     }
 
     func channelActive(context: ChannelHandlerContext) {
-        let request = SSHChannelRequestEvent.ExecRequest(command: command, wantReply: true)
-        context.triggerUserOutboundEvent(request, promise: nil)
+        switch request {
+        case .exec(let command):
+            let exec = SSHChannelRequestEvent.ExecRequest(command: command, wantReply: true)
+            context.triggerUserOutboundEvent(exec, promise: nil)
+        case .shell(let terminal):
+            let pty = SSHChannelRequestEvent.PseudoTerminalRequest(
+                wantReply: true,
+                term: terminal.type,
+                terminalCharacterWidth: terminal.columns,
+                terminalRowHeight: terminal.rows,
+                terminalPixelWidth: 0,
+                terminalPixelHeight: 0,
+                terminalModes: SSHTerminalModes([:])
+            )
+            context.triggerUserOutboundEvent(pty, promise: nil)
+            context.triggerUserOutboundEvent(SSHChannelRequestEvent.ShellRequest(wantReply: true), promise: nil)
+        }
         context.fireChannelActive()
     }
 

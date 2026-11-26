@@ -4,6 +4,7 @@ import SwiftUI
 /// scroll sideways instead of wrapping.
 struct MarkdownText: View {
     let text: String
+    @Environment(\.runInShell) private var runInShell
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -25,6 +26,12 @@ struct MarkdownText: View {
                             .padding(12)
                     }
                     .background(.fill.quaternary, in: .rect(cornerRadius: 12))
+                    .contextMenu {
+                        Button("Copy", systemImage: "doc.on.doc") { UIPasteboard.general.string = code }
+                        if let runInShell {
+                            Button("Run in Shell", systemImage: "apple.terminal") { runInShell(code) }
+                        }
+                    }
                 }
             }
         }

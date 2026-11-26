@@ -27,6 +27,9 @@ final class ChatSession {
     private let store: HostStore
     private let keys: DeviceKeyStore
     private let prompter: HostKeyPrompter
+    /// A terminal on the same server, for running commands yourself.
+    @ObservationIgnored private(set) lazy var shell = ShellSession(
+        host: { [unowned self] in self.host }, keys: keys, prompter: prompter)
     private var connection: SSHConnection?
     /// Writes to Claude Code's stdin on the server.
     private var input: SSHExecChannel?
@@ -405,6 +408,7 @@ final class SessionStore {
 
     func remove(_ id: Host.ID) async {
         await sessions[id]?.endSession()
+        sessions[id]?.shell.close()
         sessions[id] = nil
     }
 

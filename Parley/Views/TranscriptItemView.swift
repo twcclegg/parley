@@ -87,6 +87,11 @@ private struct ThinkingView: View {
 private struct ToolCallView: View {
     let call: ToolCall
     @State private var expanded = false
+    @Environment(\.runInShell) private var runInShell
+
+    private var command: String? {
+        call.name == "Bash" ? call.input["command"]?.string : nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -133,6 +138,14 @@ private struct ToolCallView: View {
         }
         .padding(12)
         .background(.fill.quaternary, in: .rect(cornerRadius: 16))
+        .contextMenu {
+            if let command {
+                Button("Copy Command", systemImage: "doc.on.doc") { UIPasteboard.general.string = command }
+                if let runInShell {
+                    Button("Run in Shell", systemImage: "apple.terminal") { runInShell(command) }
+                }
+            }
+        }
         .accessibilityElement(children: .contain)
     }
 
@@ -164,6 +177,7 @@ private struct ToolCallView: View {
 private struct PermissionCard: View {
     let request: PermissionRequest
     let session: ChatSession
+    @Environment(\.runInShell) private var runInShell
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -179,6 +193,12 @@ private struct PermissionCard: View {
             }
             if request.toolName == "ExitPlanMode", let plan = request.input["plan"]?.string {
                 MarkdownText(text: plan)
+            }
+            if request.toolName == "Bash", request.state == .pending, let command = request.input["command"]?.string,
+                let runInShell
+            {
+                Button("Run It Myself in Shell", systemImage: "apple.terminal") { runInShell(command) }
+                    .font(.footnote)
             }
             switch request.state {
             case .pending:

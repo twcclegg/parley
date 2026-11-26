@@ -14,6 +14,9 @@ settings:
 packages:
   ParleyKit:
     path: ParleyKit
+  SwiftTerm:
+    url: https://github.com/migueldeicaza/SwiftTerm
+    exactVersion: 1.18.0
 targets:
   Parley:
     type: application
@@ -25,6 +28,7 @@ targets:
         product: ParleyCore
       - package: ParleyKit
         product: ParleySSH
+      - package: SwiftTerm
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(PARLEY_BUNDLE_ID)

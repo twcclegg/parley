@@ -6,6 +6,7 @@ struct ChatView: View {
     @State private var followsEnd = true
     @State private var confirmingNew = false
     @State private var confirmingEnd = false
+    @State private var showingShell = false
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -59,6 +60,9 @@ struct ChatView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
+                Button("Shell", systemImage: "apple.terminal") { showingShell = true }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu("Conversation", systemImage: "ellipsis") {
                     Button("New Conversation", systemImage: "square.and.pencil") { confirmingNew = true }
                     if session.host.lastSessionId != nil {
@@ -83,6 +87,15 @@ struct ChatView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingShell) {
+            ShellView(shell: session.shell, hostName: session.host.displayName)
+                .presentationDetents([.large, .medium])
+                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+        }
+        .environment(\.runInShell) { command in
+            session.shell.insert(command)
+            showingShell = true
+        }
         .confirmationDialog("Start a new conversation?", isPresented: $confirmingNew, titleVisibility: .visible) {
             Button("New Conversation") { Task { await session.start(continuing: false) } }
         } message: {
