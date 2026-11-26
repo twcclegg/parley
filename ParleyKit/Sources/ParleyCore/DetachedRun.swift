@@ -28,6 +28,12 @@ public struct DetachedRun: Sendable, Equatable {
 
     private var folder: String { #""$HOME"/.parley/runs/"# + id }
 
+    /// SSH runs commands in the user's login shell, which may be zsh or fish; these scripts are
+    /// written for sh, so hand them to it.
+    private static func sh(_ script: String) -> String {
+        "exec /bin/sh -c " + ClaudeCommand.quote(script)
+    }
+
     /// Starts Claude Code in the background, prints `started`, and returns at once. Also clears
     /// away earlier runs whose Claude Code has ended.
     public func startCommand(_ claude: ClaudeCommand) -> String {
@@ -44,7 +50,7 @@ public struct DetachedRun: Sendable, Equatable {
             printf '{"type":"\(Self.exitType)","status":%d}\\n' "$status" >> "$d/out"
             kill "$holder" 2>/dev/null
             """
-        return """
+        return Self.sh("""
             d=\(folder)
             for r in "$HOME"/.parley/runs/*; do
               [ -f "$r/pid" ] || continue
@@ -56,45 +62,45 @@ public struct DetachedRun: Sendable, Equatable {
             PARLEY_RUN
             nohup sh "$d/run.sh" "$d" > /dev/null 2>&1 < /dev/null &
             echo started
-            """
+            """)
     }
 
     /// Prints `running`, `exited` or `missing`.
     public var statusCommand: String {
-        """
+        Self.sh("""
         d=\(folder)
         if [ ! -f "$d/out" ]; then echo missing
         elif [ -f "$d/pid" ] && kill -0 "$(cat "$d/pid")" 2>/dev/null; then echo running
         else echo exited; fi
-        """
+        """)
     }
 
     /// Streams Claude Code's output from `offset` bytes in, and keeps following it.
     public func followCommand(from offset: Int) -> String {
-        "exec tail -c +\(offset + 1) -f \(folder)/out"
+        Self.sh("exec tail -c +\(offset + 1) -f \(folder)/out")
     }
 
     /// Prints Claude Code's output from `offset` bytes in, then exits.
     public func readCommand(from offset: Int) -> String {
-        "exec tail -c +\(offset + 1) \(folder)/out"
+        Self.sh("exec tail -c +\(offset + 1) \(folder)/out")
     }
 
     /// Passes this connection's stdin to Claude Code.
     public var inputCommand: String {
-        "exec cat > \(folder)/in"
+        Self.sh("exec cat > \(folder)/in")
     }
 
     /// The end of Claude Code's stderr, for saying why it stopped.
     public var errorsCommand: String {
-        "tail -c 2000 \(folder)/err 2>/dev/null"
+        Self.sh("tail -c 2000 \(folder)/err 2>/dev/null")
     }
 
     /// Stops Claude Code and removes the run's folder.
     public var stopCommand: String {
-        """
+        Self.sh("""
         d=\(folder)
         [ -f "$d/pid" ] && kill "$(cat "$d/pid")" 2>/dev/null
         rm -rf "$d"
-        """
+        """)
     }
 }

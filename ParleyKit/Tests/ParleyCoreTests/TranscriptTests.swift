@@ -125,11 +125,11 @@ import Testing
     /// Runs a command the way sshd would, with HOME set to a scratch folder.
     private func sh(_ command: String, home: URL, input: String? = nil) throws -> String {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/sh")
+        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
         process.arguments = ["-c", command]
         var environment = ProcessInfo.processInfo.environment
         environment["HOME"] = home.path
-        environment["SHELL"] = "/bin/sh"
+        environment["SHELL"] = "/bin/zsh"
         process.environment = environment
         let stdout = Pipe(), stdin = Pipe()
         process.standardOutput = stdout
@@ -216,9 +216,9 @@ import Testing
         // The outer quoting must survive a real sh: run the script with `claude` swapped for echo.
         let command = ClaudeCommand(directory: "/", executable: "/bin/echo")
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/sh")
+        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
         process.arguments = ["-c", command.shellCommand]
-        process.environment = ["SHELL": "/bin/sh", "HOME": NSTemporaryDirectory()]
+        process.environment = ["SHELL": "/bin/zsh", "HOME": NSTemporaryDirectory()]
         let pipe = Pipe()
         process.standardOutput = pipe
         try process.run()
