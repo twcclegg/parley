@@ -33,6 +33,10 @@ public enum Outgoing {
     }
 
     /// Answers a `can_use_tool` request: don't run the tool. Claude reads `message`.
+    /// Text every refusal from Parley carries, so a replayed transcript can tell a refusal
+    /// from a tool that failed.
+    public static let refusalMarker = "declined in Parley"
+
     public static func deny(requestId: String, message: String) -> JSON {
         controlResponse(requestId: requestId, ["behavior": "deny", "message": .string(message)])
     }

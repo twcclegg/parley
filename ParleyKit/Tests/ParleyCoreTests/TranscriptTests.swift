@@ -35,7 +35,8 @@ import Testing
         #expect(call.result == "")
         guard case .permission(let request) = kinds[4] else { Issue.record("expected a permission"); return }
         #expect(request.requestId == "req-1")
-        #expect(request.state == .pending)
+        // The fixture goes on to the tool's result, which shows the request was allowed.
+        #expect(request.state == .allowed)
         #expect(request.suggestedRules.count == 1)
         // A subagent's tool call isn't shown in the main conversation.
         #expect(kinds[5] == .assistant("Done."))
@@ -71,17 +72,108 @@ import Testing
         #expect(question.questions.first?.options.map(\.label) == ["SQLite", "Postgres"])
     }
 
-    @Test func endingTheConnectionCancelsWhatIsPending() {
+    @Test func endingTheProcessCancelsWhatIsPending() {
         var transcript = Transcript()
         transcript.beginUserTurn("hi")
         transcript.apply([
             "type": "control_request", "request_id": "p1",
             "request": ["subtype": "can_use_tool", "tool_name": "Bash", "input": ["command": "ls"]],
         ])
-        transcript.connectionEnded()
+        transcript.processEnded()
         #expect(transcript.isBusy == false)
         guard case .permission(let request) = transcript.items.last?.kind else { Issue.record("expected a permission"); return }
         #expect(request.state == .cancelled)
+    }
+}
+
+@Suite struct ReplayTests {
+    @Test func echoedMessagesAreNotShownTwice() {
+        var transcript = Transcript()
+        transcript.beginUserTurn("hello")
+        transcript.apply(["type": "user", "isReplay": true, "message": ["role": "user", "content": "hello"]])
+        #expect(transcript.items.count == 1)
+        // A message sent from an earlier connection shows when its echo arrives.
+        transcript.apply(["type": "user", "isReplay": true, "message": ["role": "user", "content": "earlier"]])
+        #expect(transcript.items.count == 2)
+        guard case .user("earlier") = transcript.items.last?.kind else { Issue.record("expected the earlier message"); return }
+    }
+
+    @Test func replayShowsHowPermissionsWereAnswered() {
+        var transcript = Transcript()
+        for (requestId, toolUseId) in [("p1", "t1"), ("p2", "t2")] {
+            transcript.apply([
+                "type": "control_request", "request_id": .string(requestId),
+                "request": [
+                    "subtype": "can_use_tool", "tool_name": "Bash", "tool_use_id": .string(toolUseId),
+                    "input": ["command": "ls"],
+                ],
+            ])
+        }
+        transcript.apply(["type": "user", "message": ["role": "user", "content": [
+            ["type": "tool_result", "tool_use_id": "t1", "content": "file", "is_error": false],
+            ["type": "tool_result", "tool_use_id": "t2", "content": "The user declined in Parley.", "is_error": true],
+        ]]])
+        let states = transcript.items.compactMap { item -> PermissionRequest.State? in
+            if case .permission(let request) = item.kind { return request.state }
+            return nil
+        }
+        #expect(states == [.allowed, .denied])
+    }
+}
+
+@Suite(.serialized) struct DetachedRunTests {
+    /// Runs a command the way sshd would, with HOME set to a scratch folder.
+    private func sh(_ command: String, home: URL, input: String? = nil) throws -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/sh")
+        process.arguments = ["-c", command]
+        var environment = ProcessInfo.processInfo.environment
+        environment["HOME"] = home.path
+        environment["SHELL"] = "/bin/sh"
+        process.environment = environment
+        let stdout = Pipe(), stdin = Pipe()
+        process.standardOutput = stdout
+        process.standardInput = stdin
+        try process.run()
+        if let input { stdin.fileHandleForWriting.write(Data(input.utf8)) }
+        try stdin.fileHandleForWriting.close()
+        process.waitUntilExit()
+        return String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+    }
+
+    private func waitFor(_ condition: () throws -> Bool) throws {
+        for _ in 0..<100 {
+            if try condition() { return }
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+        Issue.record("timed out")
+    }
+
+    @Test func claudeOutlivesTheConnectionsThatTalkToIt() throws {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: home, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: home) }
+        // Stands in for claude: echoes each line, and exits with status 3 on "quit".
+        let fake = home.appendingPathComponent("fake-claude")
+        try "#!/bin/sh\nwhile read l; do echo \"$l\"; [ \"$l\" = quit ] && exit 3; done\n"
+            .write(to: fake, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: fake.path)
+
+        let run = DetachedRun.new()
+        let claude = ClaudeCommand(directory: "~", executable: fake.path)
+        #expect(try sh(run.startCommand(claude), home: home) == "started\n")
+        try waitFor { try sh(run.statusCommand, home: home) == "running\n" }
+
+        // Two connections in turn; the first one closing mustn't end Claude.
+        _ = try sh(run.inputCommand, home: home, input: "one\n")
+        try waitFor { try sh(run.readCommand(from: 0), home: home) == "one\n" }
+        #expect(try sh(run.statusCommand, home: home) == "running\n")
+        _ = try sh(run.inputCommand, home: home, input: "two\nquit\n")
+        try waitFor { try sh(run.statusCommand, home: home) == "exited\n" }
+
+        #expect(try sh(run.readCommand(from: 4), home: home) == "two\nquit\n{\"type\":\"parley_exit\",\"status\":3}\n")
+        _ = try sh(run.stopCommand, home: home)
+        #expect(try sh(run.statusCommand, home: home) == "missing\n")
     }
 }
 

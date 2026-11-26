@@ -15,6 +15,8 @@ struct Host: Identifiable, Codable, Hashable, Sendable {
     var permissionMode: String?
     /// The last session Claude Code reported, to continue it later.
     var lastSessionId: String?
+    /// The Claude Code process Parley left running on the server, to reattach to it.
+    var runId: String?
 
     var displayName: String { name.isEmpty ? hostname : name }
 

@@ -25,11 +25,18 @@ final class ChatSession {
     private let keys: DeviceKeyStore
     private let prompter: HostKeyPrompter
     private var connection: SSHConnection?
-    private var process: SSHExecChannel?
+    /// Writes to Claude Code's stdin on the server.
+    private var input: SSHExecChannel?
+    /// Follows Claude Code's output on the server.
+    private var output: SSHExecChannel?
+    /// The Claude Code process on the server, which outlives connections.
+    private var run: DetachedRun?
+    /// The run the transcript was built from, and how many bytes of its output it has read.
+    private var transcriptRun: DetachedRun?
+    private var consumed = 0
     private var requestCounter = 0
     private var lineBuffer = Data()
-    private var stderrTail = ""
-    /// Set while connecting or connected, to tell an intended stop from a dropped connection.
+    /// Bumped whenever connections are replaced, so work for an old one stops.
     private var generation = 0
 
     init(host: Host, store: HostStore, keys: DeviceKeyStore, prompter: HostKeyPrompter) {
@@ -37,11 +44,15 @@ final class ChatSession {
         self.store = store
         self.keys = keys
         self.prompter = prompter
+        self.run = host.runId.map(DetachedRun.init(id:))
     }
 
     var canSend: Bool {
         phase == .connected && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+
+    /// Whether Claude Code may still be running on the server from an earlier connection.
+    var hasRunOnServer: Bool { run != nil }
 
     var hasPendingQuestion: Bool {
         transcript.items.contains { item in
@@ -55,15 +66,14 @@ final class ChatSession {
 
     // MARK: - Connecting
 
-    /// Starts Claude Code on the server: a new conversation, or the last one continued.
+    /// Connects to the server. Continuing reattaches to Claude Code if it's still running there,
+    /// or else resumes the last conversation in a new process; otherwise a new conversation starts.
     func start(continuing: Bool) async {
         if let current = store.host(host.id) { host = current }
-        await stop(reason: nil)
+        closeConnection()
         generation += 1
         let generation = self.generation
         phase = .connecting
-        lineBuffer = Data()
-        stderrTail = ""
 
         do {
             let key = try keys.deviceKey()
@@ -80,53 +90,136 @@ final class ChatSession {
                 await connection.close()
                 return
             }
+            self.connection = connection
+
+            if !continuing {
+                if let old = run { _ = try? await connection.run(old.stopCommand) }
+                setRun(nil)
+                transcript = Transcript()
+                transcriptRun = nil
+            }
+
+            var resumed = false
+            if continuing, let run {
+                switch try await connection.run(run.statusCommand).stdout.trimmingCharacters(in: .whitespacesAndNewlines) {
+                case "running":
+                    try await attach(run, connection: connection, generation: generation)
+                    return
+                case "exited":
+                    // It finished while we were away: show what it said, then carry on in a new process.
+                    if transcriptRun != run { startTranscript(for: run) }
+                    let rest = try await connection.run(run.readCommand(from: consumed))
+                    await apply(Data(rest.stdout.utf8), generation: generation, live: false)
+                    _ = try? await connection.run(run.stopCommand)
+                    resumed = true
+                default:
+                    break
+                }
+                setRun(nil)
+            }
+
+            let sessionId = continuing ? (transcript.sessionId ?? host.lastSessionId) : nil
+            let run = DetachedRun.new()
             let command = ClaudeCommand(
                 directory: host.directory,
                 executable: host.claudePath,
-                resumeSessionId: continuing ? (transcript.sessionId ?? host.lastSessionId) : nil,
+                resumeSessionId: sessionId,
                 permissionMode: host.permissionMode
             )
-            let process = try await connection.exec(command.shellCommand)
-            self.connection = connection
-            self.process = process
-            phase = .connected
-            if continuing, transcript.items.isEmpty {
+            let started = try await connection.run(run.startCommand(command))
+            guard started.stdout.contains("started") else {
+                throw StartError(detail: (started.stderr + started.stdout).trimmingCharacters(in: .whitespacesAndNewlines))
+            }
+            setRun(run)
+            let hadTranscript = !transcript.items.isEmpty
+            startTranscript(for: run, keepingItems: true)
+            try await attach(run, connection: connection, generation: generation)
+            if sessionId != nil, !hadTranscript, !resumed {
                 transcript.notice("Continuing your last conversation. Earlier messages aren't shown here.")
             }
-            Task { await self.readOutput(process, generation: generation) }
-            Task { await self.readErrors(process) }
             try await send(Outgoing.initialize(requestId: nextRequestId(prefix: "init")))
         } catch {
             guard generation == self.generation else { return }
+            closeConnection()
             let reason = prompter.mismatch(for: host) ?? Self.describe(error)
             phase = .ended(reason)
             transcript.notice(reason, isError: true)
         }
     }
 
-    /// Stops the process and closes the connection.
+    /// Opens the channels to a running Claude Code and follows its output from where the
+    /// transcript left off, or from the beginning for a transcript that hasn't seen this run.
+    private func attach(_ run: DetachedRun, connection: SSHConnection, generation: Int) async throws {
+        if transcriptRun != run { startTranscript(for: run) }
+        let output = try await connection.exec(run.followCommand(from: consumed))
+        let input = try await connection.exec(run.inputCommand)
+        guard generation == self.generation else {
+            await output.close()
+            await input.close()
+            return
+        }
+        self.output = output
+        self.input = input
+        lineBuffer = Data()
+        phase = .connected
+        Task { await self.follow(output, generation: generation) }
+    }
+
+    /// Leaves Claude Code running on the server and closes the connection.
     func disconnect() async {
-        await stop(reason: nil)
+        closeConnection()
         phase = .ended(nil)
     }
 
-    /// After the app comes back from the background: reconnect if the connection was lost
-    /// while a conversation was open.
+    /// Stops Claude Code on the server.
+    func endSession() async {
+        let connection = self.connection, run = self.run
+        if let connection, let run { _ = try? await connection.run(run.stopCommand) }
+        closeConnection()
+        setRun(nil)
+        transcript.processEnded()
+        phase = .ended(nil)
+    }
+
+    /// After the app comes back from the background: reconnect if the connection dropped.
     func resumeIfDropped() async {
-        if case .ended(let reason) = phase, reason != nil, transcript.sessionId != nil {
+        if case .ended(let reason) = phase, reason != nil, run != nil {
             await start(continuing: true)
         }
     }
 
-    private func stop(reason: String?) async {
+    private func closeConnection() {
         generation += 1
-        let process = self.process, connection = self.connection
-        self.process = nil
+        let input = self.input, output = self.output, connection = self.connection
+        self.input = nil
+        self.output = nil
         self.connection = nil
-        await process?.closeInput()
-        await process?.close()
-        await connection?.close()
-        transcript.connectionEnded()
+        Task {
+            await input?.close()
+            await output?.close()
+            await connection?.close()
+        }
+    }
+
+    private func setRun(_ run: DetachedRun?) {
+        self.run = run
+        store.update(host.id) { $0.runId = run?.id }
+        host.runId = run?.id
+    }
+
+    /// Points the transcript at a run's output, from its start.
+    private func startTranscript(for run: DetachedRun, keepingItems: Bool = false) {
+        if !keepingItems { transcript = Transcript() }
+        transcriptRun = run
+        consumed = 0
+        lineBuffer = Data()
+    }
+
+    struct StartError: LocalizedError {
+        let detail: String
+        var errorDescription: String? {
+            "Parley couldn't start Claude Code on the server." + (detail.isEmpty ? "" : "\n\n" + detail)
+        }
     }
 
     // MARK: - Talking
@@ -155,7 +248,7 @@ final class ChatSession {
     }
 
     func deny(_ request: PermissionRequest) async {
-        try? await send(Outgoing.deny(requestId: request.requestId, message: "The user declined this from Parley."))
+        try? await send(Outgoing.deny(requestId: request.requestId, message: "The user declined in Parley."))
         transcript.resolvePermission(requestId: request.requestId, state: .denied)
     }
 
@@ -167,7 +260,7 @@ final class ChatSession {
     }
 
     func decline(_ request: QuestionRequest) async {
-        try? await send(Outgoing.deny(requestId: request.requestId, message: "The user chose not to answer."))
+        try? await send(Outgoing.deny(requestId: request.requestId, message: "The user declined in Parley to answer."))
         transcript.resolveQuestion(requestId: request.requestId, state: .declined)
     }
 
@@ -180,8 +273,8 @@ final class ChatSession {
     }
 
     private func send(_ message: JSON) async throws {
-        guard let process else { throw SSHError.connectionClosed }
-        try await process.write(try message.line())
+        guard let input else { throw SSHError.connectionClosed }
+        try await input.write(try message.line())
     }
 
     private func nextRequestId(prefix: String) -> String {
@@ -191,30 +284,48 @@ final class ChatSession {
 
     // MARK: - Reading
 
-    private func readOutput(_ process: SSHExecChannel, generation: Int) async {
-        for await chunk in process.stdout {
-            lineBuffer.append(chunk)
-            while let newline = lineBuffer.firstIndex(of: 0x0A) {
-                let line = Data(lineBuffer[lineBuffer.startIndex..<newline])
-                lineBuffer.removeSubrange(lineBuffer.startIndex...newline)
-                if let message = JSON.parseLine(line) { await handle(message) }
-            }
+    private func follow(_ output: SSHExecChannel, generation: Int) async {
+        for await chunk in output.stdout {
+            guard generation == self.generation else { return }
+            await apply(chunk, generation: generation, live: true)
         }
-        let status = await process.exitStatus
         guard generation == self.generation else { return }
-        self.process = nil
-        await connection?.close()
-        connection = nil
-        transcript.connectionEnded()
-        let reason = endReason(status: status)
-        transcript.notice(reason ?? "Claude Code ended the session.", isError: reason != nil)
-        phase = .ended(reason)
+        // The output ended without Claude Code exiting: the connection dropped. Claude Code
+        // carries on, and reconnecting picks up where this left off.
+        closeConnection()
+        phase = .ended("The connection was lost. Claude Code is still running on the server.")
     }
 
-    private func readErrors(_ process: SSHExecChannel) async {
-        for await chunk in process.stderr {
-            stderrTail = String((stderrTail + String(decoding: chunk, as: UTF8.self)).suffix(2000))
+    /// Reads complete lines of Claude Code's output.
+    private func apply(_ chunk: Data, generation: Int, live: Bool) async {
+        lineBuffer.append(chunk)
+        while let newline = lineBuffer.firstIndex(of: 0x0A) {
+            let line = Data(lineBuffer[lineBuffer.startIndex..<newline])
+            lineBuffer.removeSubrange(lineBuffer.startIndex...newline)
+            consumed += line.count + 1
+            guard let message = JSON.parseLine(line) else { continue }
+            if message["type"]?.string == DetachedRun.exitType {
+                await processExited(status: message["status"]?.number.map(Int.init), live: live)
+                return
+            }
+            await handle(message)
         }
+    }
+
+    /// Claude Code exited on the server.
+    private func processExited(status: Int?, live: Bool) async {
+        transcript.processEnded()
+        guard live else { return }
+        var detail = ""
+        if let connection, let run {
+            detail = (try? await connection.run(run.errorsCommand).stdout) ?? ""
+            _ = try? await connection.run(run.stopCommand)
+        }
+        setRun(nil)
+        closeConnection()
+        let reason = endReason(status: status, detail: detail)
+        transcript.notice(reason ?? "Claude Code ended the session.", isError: reason != nil)
+        phase = .ended(reason)
     }
 
     private func handle(_ message: JSON) async {
@@ -229,17 +340,14 @@ final class ChatSession {
         }
     }
 
-    private func endReason(status: Int?) -> String? {
-        let detail = stderrTail.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func endReason(status: Int?, detail: String) -> String? {
+        let detail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
         if status == 127 || detail.contains("command not found") || detail.contains("not found") && transcript.sessionId == nil {
             return "Claude Code wasn't found on the server. Install it there, or set its path in the server's settings."
                 + (detail.isEmpty ? "" : "\n\n" + detail)
         }
         if let status, status != 0 {
             return "Claude Code exited with status \(status)." + (detail.isEmpty ? "" : "\n\n" + detail)
-        }
-        if status == nil, transcript.sessionId != nil {
-            return "The connection was lost."
         }
         return nil
     }
@@ -272,7 +380,7 @@ final class SessionStore {
     func existing(_ id: Host.ID) -> ChatSession? { sessions[id] }
 
     func remove(_ id: Host.ID) async {
-        await sessions[id]?.disconnect()
+        await sessions[id]?.endSession()
         sessions[id] = nil
     }
 

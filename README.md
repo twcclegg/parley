@@ -68,14 +68,14 @@ Run the package tests with `cd ParleyKit && swift test`.
 
 ## Limits
 
-- **The session lives as long as the connection.** iOS closes network connections in apps that are in the background, and Claude Code on the server stops with them. When you come back, Parley reconnects and continues the session with `--resume`, but a turn that was still running is lost, and earlier messages aren't shown again.
+- **Claude Code keeps running while you're away.** iOS closes network connections in apps that are in the background, so Parley starts Claude Code detached from the connection, in `~/.parley/runs/<id>` on the server (a named pipe for its input and a file for its output, using only POSIX `sh`). Reconnecting picks up the output where it left off, and pending permission prompts can still be answered. **End Session** in the chat menu stops it; starting a new conversation stops the previous one. Finished runs are cleaned up the next time Parley starts one.
+- A conversation continued from an earlier process (`--resume`) doesn't show messages from before it.
 - **Subagents are summarized.** A subagent's own tool calls aren't shown in the conversation; its result is.
 - **One key per device**, and no SSH agent forwarding, jump hosts or password storage.
 - **No plain terminal.** Parley is for Claude Code. Use a terminal app for everything else.
 
 ## Ideas
 
-- Keep the session running across disconnects with a small helper on the server (tmux or a relay), and replay history on reconnect.
 - Show diffs for edits.
 - Attach photos and files.
 - A session list from `~/.claude/projects` on the server.

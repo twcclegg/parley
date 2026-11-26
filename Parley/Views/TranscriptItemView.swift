@@ -173,6 +173,7 @@ private struct PermissionCard: View {
                             .buttonStyle(.glassProminent)
                     }
                 }
+                .disabled(session.phase != .connected)
             case .allowed:
                 outcome("Allowed", "checkmark")
             case .allowedAlways:
@@ -227,8 +228,9 @@ private struct QuestionCard: View {
                             .disabled(!allAnswered)
                     }
                 }
+                .disabled(session.phase != .connected)
             case .answered(let answers):
-                Label(answers.values.sorted().joined(separator: ", "), systemImage: "checkmark")
+                Label(answers.isEmpty ? "Answered" : answers.values.sorted().joined(separator: ", "), systemImage: "checkmark")
                     .font(.footnote).foregroundStyle(.secondary)
             case .declined:
                 Label("Skipped", systemImage: "xmark").font(.footnote).foregroundStyle(.secondary)
@@ -266,7 +268,7 @@ private struct QuestionCard: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .disabled(request.state != .pending)
+        .disabled(request.state != .pending || session.phase != .connected)
     }
 
     /// One single-choice question sends as soon as you pick; anything more waits for Send.

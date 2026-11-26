@@ -5,6 +5,7 @@ struct ChatView: View {
     @Bindable var session: ChatSession
     @State private var followsEnd = true
     @State private var confirmingNew = false
+    @State private var confirmingEnd = false
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -40,7 +41,9 @@ struct ChatView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        // A bar rather than an inset, so the transcript fades out beneath it instead of
+        // showing through the glass.
+        .safeAreaBar(edge: .bottom, spacing: 0) {
             VStack(spacing: 8) {
                 ConnectionBanner(session: session)
                 if session.phase == .connected {
@@ -72,8 +75,8 @@ struct ChatView: View {
                     }
                     .pickerStyle(.menu)
                     if session.phase == .connected {
-                        Button("Disconnect", systemImage: "bolt.horizontal.circle", role: .destructive) {
-                            Task { await session.disconnect() }
+                        Button("End Session", systemImage: "stop.circle", role: .destructive) {
+                            confirmingEnd = true
                         }
                     }
                 }
@@ -83,7 +86,18 @@ struct ChatView: View {
         .confirmationDialog("Start a new conversation?", isPresented: $confirmingNew, titleVisibility: .visible) {
             Button("New Conversation") { Task { await session.start(continuing: false) } }
         } message: {
-            Text("The current conversation stays on the server; you can continue it later from Claude Code.")
+            Text("Claude Code stops working on the current conversation. It stays on the server; you can continue it later from Claude Code.")
+        }
+        .confirmationDialog("End this session?", isPresented: $confirmingEnd, titleVisibility: .visible) {
+            Button("End Session", role: .destructive) { Task { await session.endSession() } }
+        } message: {
+            Text("Claude Code stops on the server. Until then it keeps working while Parley is closed.")
+        }
+        .task {
+            // Claude Code left running on the server: pick it straight back up.
+            if session.phase == .idle, session.hasRunOnServer {
+                await session.start(continuing: true)
+            }
         }
     }
 
@@ -152,7 +166,7 @@ private struct ConnectionBanner: View {
             .glassEffect()
         case .ended:
             HStack(spacing: 12) {
-                Text("Disconnected").font(.subheadline)
+                Text(session.hasRunOnServer ? "Disconnected · still running" : "Disconnected").font(.subheadline)
                 Button("Reconnect") { Task { await session.start(continuing: session.transcript.sessionId != nil) } }
                     .buttonStyle(.glassProminent)
             }

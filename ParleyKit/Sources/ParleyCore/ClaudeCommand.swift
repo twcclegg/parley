@@ -27,6 +27,8 @@ public struct ClaudeCommand: Sendable, Equatable {
             "--verbose",
             "--include-partial-messages",
             "--permission-prompt-tool", "stdio",
+            // Echo what Parley sends, so the output alone can rebuild the conversation.
+            "--replay-user-messages",
         ]
         if let mode = permissionMode, !mode.isEmpty {
             arguments += ["--permission-mode", mode]
@@ -40,13 +42,18 @@ public struct ClaudeCommand: Sendable, Equatable {
     /// The command line for an SSH exec request. It runs in the user's login shell, so PATH is
     /// what they get when they sign in, plus the places Claude Code's installers use.
     public var shellCommand: String {
+        "exec " + backgroundCommand
+    }
+
+    /// The same, without the leading `exec`, for starting it in the background.
+    public var backgroundCommand: String {
         let trimmedExecutable = executable.trimmingCharacters(in: .whitespaces)
         let claude = trimmedExecutable.isEmpty ? "claude" : Self.quoteHomePath(trimmedExecutable)
         let script = [
             #"export PATH="$HOME/.local/bin:$HOME/.claude/local:$PATH""#,
             Self.changeDirectory(directory) + " && exec " + claude + " " + arguments.map(Self.quote).joined(separator: " "),
         ].joined(separator: "; ")
-        return #"exec "${SHELL:-/bin/sh}" -lc "# + Self.quote(script)
+        return #""${SHELL:-/bin/sh}" -lc "# + Self.quote(script)
     }
 
     static func changeDirectory(_ directory: String) -> String {

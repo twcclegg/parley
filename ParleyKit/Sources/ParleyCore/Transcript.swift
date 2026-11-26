@@ -67,6 +67,8 @@ public struct ToolCall: Sendable, Equatable {
 
 public struct PermissionRequest: Sendable, Equatable {
     public let requestId: String
+    /// The tool call this asks about, so its result can show how the question was answered.
+    public let toolUseId: String?
     public let toolName: String
     public let displayName: String
     public let description: String?
@@ -88,6 +90,7 @@ public struct PermissionRequest: Sendable, Equatable {
 
 public struct QuestionRequest: Sendable, Equatable {
     public let requestId: String
+    public let toolUseId: String?
     public let input: JSON
     public let questions: [Question]
     public var state: State
@@ -150,12 +153,17 @@ public struct Transcript: Sendable, Equatable {
     private var streamedCounts: [String: Int] = [:]
     private var completeCounts: [String: Int] = [:]
     private var localCounter = 0
+    /// What you sent that Claude Code hasn't echoed back yet, oldest first.
+    private var unechoed: [String] = []
+    /// Tool call id → the permission or question item that asked about it.
+    private var requestsByToolUse: [String: String] = [:]
 
     public init() {}
 
     /// Adds what you sent and marks the turn busy.
     public mutating func beginUserTurn(_ text: String) {
         append(TranscriptItem(id: nextLocalId(), kind: .user(text)))
+        unechoed.append(text)
         isBusy = true
     }
 
@@ -164,9 +172,13 @@ public struct Transcript: Sendable, Equatable {
         append(TranscriptItem(id: nextLocalId(), kind: .notice(text, isError: isError)))
     }
 
-    /// The connection ended: nothing is running any more, and nothing pending can be answered.
-    public mutating func connectionEnded() {
+    /// Claude Code ended: nothing is running any more, and nothing pending can be answered.
+    public mutating func processEnded() {
         isBusy = false
+        cancelPending()
+    }
+
+    private mutating func cancelPending() {
         for index in items.indices {
             switch items[index].kind {
             case .permission(var request) where request.state == .pending:
@@ -213,7 +225,7 @@ public struct Transcript: Sendable, Equatable {
         case "assistant":
             if isTopLevel(message), let body = message["message"] { applyAssistant(body) }
         case "user":
-            if isTopLevel(message), let body = message["message"] { applyToolResults(body) }
+            if isTopLevel(message), let body = message["message"] { applyUser(body) }
         case "result":
             applyResult(message)
         case "control_request":
@@ -327,8 +339,38 @@ public struct Transcript: Sendable, Equatable {
         }
     }
 
+    /// A user message: tool results, or what you sent echoed back.
+    private mutating func applyUser(_ body: JSON) {
+        let text: String?
+        switch body["content"] {
+        case .string(let value):
+            text = value
+        case .array(let blocks) where !blocks.contains(where: { $0["type"]?.string == "tool_result" }):
+            text = blocks.compactMap { $0["type"]?.string == "text" ? $0["text"]?.string : nil }.joined(separator: "\n")
+        default:
+            text = nil
+        }
+        guard let text else {
+            applyToolResults(body)
+            return
+        }
+        if let index = unechoed.firstIndex(of: text) {
+            unechoed.remove(at: index)
+        } else if !text.isEmpty {
+            // Sent before this transcript began, such as from an earlier connection.
+            append(TranscriptItem(id: nextLocalId(), kind: .user(text)))
+            isBusy = true
+        }
+    }
+
     private mutating func applyToolResults(_ body: JSON) {
         for block in body["content"]?.array ?? [] where block["type"]?.string == "tool_result" {
+            if let id = block["tool_use_id"]?.string {
+                // A refusal comes back as an error carrying the reason Parley gave.
+                let refused = (block["is_error"]?.bool ?? false)
+                    && Self.text(of: block["content"]).contains(Outgoing.refusalMarker)
+                settleRequest(toolUseId: id, refused: refused)
+            }
             guard let id = block["tool_use_id"]?.string,
                 let position = positions[id],
                 case .tool(var call) = items[position].kind
@@ -341,6 +383,8 @@ public struct Transcript: Sendable, Equatable {
 
     private mutating func applyResult(_ message: JSON) {
         isBusy = false
+        // Anything still waiting belonged to the turn that just ended.
+        cancelPending()
         let isError = message["is_error"]?.bool ?? false
         let subtype = message["subtype"]?.string ?? "success"
         if isError || subtype != "success" {
@@ -376,14 +420,22 @@ public struct Transcript: Sendable, Equatable {
                     multiSelect: question["multiSelect"]?.bool ?? false
                 )
             }
-            let item = QuestionRequest(requestId: requestId, input: input, questions: questions, state: .pending)
+            let item = QuestionRequest(
+                requestId: requestId,
+                toolUseId: request["tool_use_id"]?.string,
+                input: input,
+                questions: questions,
+                state: .pending
+            )
             append(TranscriptItem(id: requestId, kind: .question(item)))
+            if let toolUseId = item.toolUseId { requestsByToolUse[toolUseId] = requestId }
         } else {
             let suggestions = (request["permission_suggestions"]?.array ?? []).filter {
                 $0["type"]?.string == "addRules"
             }
             let item = PermissionRequest(
                 requestId: requestId,
+                toolUseId: request["tool_use_id"]?.string,
                 toolName: toolName,
                 displayName: request["display_name"]?.string ?? toolName,
                 description: request["description"]?.string,
@@ -392,6 +444,7 @@ public struct Transcript: Sendable, Equatable {
                 state: .pending
             )
             append(TranscriptItem(id: requestId, kind: .permission(item)))
+            if let toolUseId = item.toolUseId { requestsByToolUse[toolUseId] = requestId }
         }
         return []
     }
@@ -418,6 +471,22 @@ public struct Transcript: Sendable, Equatable {
             items[position].kind = .permission(request)
         case .question(var request) where request.state == .pending:
             request.state = .cancelled
+            items[position].kind = .question(request)
+        default:
+            break
+        }
+    }
+
+    /// A tool ran or was refused: a request about it that still looks pending was answered,
+    /// from another connection or before this transcript began.
+    private mutating func settleRequest(toolUseId: String, refused: Bool) {
+        guard let requestId = requestsByToolUse[toolUseId], let position = positions[requestId] else { return }
+        switch items[position].kind {
+        case .permission(var request) where request.state == .pending:
+            request.state = refused ? .denied : .allowed
+            items[position].kind = .permission(request)
+        case .question(var request) where request.state == .pending:
+            request.state = refused ? .declined : .answered([:])
             items[position].kind = .question(request)
         default:
             break
