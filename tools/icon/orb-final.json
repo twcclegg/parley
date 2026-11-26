@@ -1,0 +1,1 @@
+{"base_exp": 0.8, "transmission": 1.0, "roughness": 0.0, "ior": 1.5, "dispersion": 0.4, "scatter": 0.6, "absorb_exp": 1.0, "glow": 0.25, "windows": [[-3.0, 3.2, 4.0, 3.0, 4.0, 22, true], [3.4, 2.0, 3.2, 1.6, 2.6, 14, false]], "floor": 3.0, "hdri": "interior", "rot_x": 70, "rot_z": 140, "hdri_strength": 1.2, "pure_absorb": 1.6, "absorb_rgb": [1, 0.55, 0.25], "exposure": -0.5}

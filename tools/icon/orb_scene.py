@@ -20,7 +20,7 @@ T = lin(P.get("colour", "D97757"))
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
 
-bpy.ops.mesh.primitive_uv_sphere_add(segments=192, ring_count=96, radius=1.0)
+bpy.ops.mesh.primitive_uv_sphere_add(segments=P.get("segments", 192), ring_count=P.get("segments", 192) // 2, radius=1.0)
 orb = bpy.context.active_object
 bpy.ops.object.shade_smooth()
 m = bpy.data.materials.new("orb")
@@ -45,6 +45,14 @@ vol.inputs["Emission Color"].default_value = T + [1]
 vol.inputs["Emission Strength"].default_value = P["glow"]
 nt.links.new(vol.outputs[0], nt.nodes["Material Output"].inputs["Volume"])
 orb.data.materials.append(m)
+if P.get("pure_absorb"):
+    # coloured glass: colour from absorption only, so it stays clear rather than milky
+    lk = nt.nodes["Material Output"].inputs["Volume"].links
+    if lk: nt.links.remove(lk[0])
+    ab = nt.nodes.new("ShaderNodeVolumeAbsorption")
+    ab.inputs["Color"].default_value = P.get("absorb_rgb", [min(1.0, (c / max(T)) ** P.get("absorb_exp", 1.0)) for c in T]) + [1]
+    ab.inputs["Density"].default_value = P["pure_absorb"]
+    nt.links.new(ab.outputs[0], nt.nodes["Material Output"].inputs["Volume"])
 
 orb_only = bpy.data.collections.new("orb only")
 orb_only.objects.link(orb)
