@@ -54,8 +54,112 @@ if P.get("pure_absorb"):
     ab.inputs["Density"].default_value = P["pure_absorb"]
     nt.links.new(ab.outputs[0], nt.nodes["Material Output"].inputs["Volume"])
 
+if P.get("halo", 0) > 0:
+    # luminous interior: volume emission that falls off from a core point
+    out_v = nt.nodes["Material Output"].inputs["Volume"]
+    prev = out_v.links[0].from_socket if out_v.links else None
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"
+    sub.inputs[1].default_value = P.get("halo_at", [0.0, -0.1, 0.0])
+    nt.links.new(tc.outputs["Object"], sub.inputs[0])
+    ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
+    nt.links.new(sub.outputs[0], ln.inputs[0])
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.inputs["From Min"].default_value = 0.0
+    mr.inputs["From Max"].default_value = P.get("halo_r", 0.9)
+    mr.inputs["To Min"].default_value = 1.0
+    mr.inputs["To Max"].default_value = 0.0
+    nt.links.new(ln.outputs["Value"], mr.inputs["Value"])
+    pw = nt.nodes.new("ShaderNodeMath"); pw.operation = "POWER"
+    pw.inputs[1].default_value = P.get("halo_pow", 3.0)
+    nt.links.new(mr.outputs["Result"], pw.inputs[0])
+    st = nt.nodes.new("ShaderNodeMath"); st.operation = "MULTIPLY"
+    st.inputs[1].default_value = P["halo"]
+    nt.links.new(pw.outputs[0], st.inputs[0])
+    # colour runs from hot (near white-amber) at the core to the brand colour at the edge
+    cr = nt.nodes.new("ShaderNodeValToRGB")
+    cr.color_ramp.elements[0].color = [c ** P.get("halo_edge_exp", 1.0) for c in T] + [1]
+    cr.color_ramp.elements[1].color = P.get("halo_hot", [1.0, 0.62, 0.32]) + [1]
+    cr.color_ramp.elements[1].position = P.get("halo_hot_pos", 0.85)
+    nt.links.new(mr.outputs["Result"], cr.inputs["Fac"])
+    em = nt.nodes.new("ShaderNodeEmission")
+    nt.links.new(cr.outputs["Color"], em.inputs["Color"])
+    nt.links.new(st.outputs[0], em.inputs["Strength"])
+    if prev is not None:
+        add = nt.nodes.new("ShaderNodeAddShader")
+        nt.links.new(prev, add.inputs[0]); nt.links.new(em.outputs[0], add.inputs[1])
+        nt.links.new(add.outputs[0], out_v)
+    else:
+        nt.links.new(em.outputs[0], out_v)
+
+if P.get("filaments", 0) > 0:
+    # glowing energy filaments inside the glass: random walks out from the core, with forks
+    import random
+    rnd = random.Random(P.get("seed", 7))
+    fm = bpy.data.materials.new("filament")
+    fm.use_nodes = True
+    fe = fm.node_tree.nodes.new("ShaderNodeEmission")
+    fe.inputs["Color"].default_value = P.get("fil_rgb", [1.0, 0.5, 0.25]) + [1]
+    fe.inputs["Strength"].default_value = P.get("fil_glow", 12.0)
+    fm.node_tree.links.new(fe.outputs[0], fm.node_tree.nodes["Material Output"].inputs["Surface"])
+    core = Vector(P.get("halo_at", [0.0, -0.1, 0.0]))
+    rmax = P.get("fil_reach", 0.82)
+    def walk(start, d, steps, depth):
+        pts = [start.copy()]
+        p = start.copy()
+        for i in range(steps):
+            d = (d + Vector([rnd.gauss(0, P.get("fil_wiggle", 0.45)) for _ in range(3)])).normalized()
+            p = p + d * P.get("fil_step", 0.07)
+            if p.length > rmax:
+                break
+            pts.append(p.copy())
+            if depth < 2 and rnd.random() < P.get("fil_fork", 0.12):
+                walk(p, (d + Vector([rnd.gauss(0, 0.8) for _ in range(3)])).normalized(), steps // 2, depth + 1)
+        if len(pts) < 3: return
+        cu = bpy.data.curves.new("fil", "CURVE"); cu.dimensions = "3D"
+        cu.bevel_depth = P.get("fil_width", 0.006) * (0.55 ** depth)
+        cu.bevel_resolution = 2
+        sp = cu.splines.new("NURBS"); sp.points.add(len(pts) - 1)
+        for i, (q, v) in enumerate(zip(sp.points, pts)):
+            q.co = (v.x, v.y, v.z, 1)
+            q.radius = max(0.08, 1.0 - i / max(1, P.get("fil_steps", 24))) ** P.get("fil_taper", 1.0)
+        sp.use_endpoint_u = True; sp.order_u = 4
+        ob = bpy.data.objects.new("fil", cu); ob.data.materials.append(fm)
+        scene.collection.objects.link(ob)
+    for k in range(P["filaments"]):
+        d = Vector([rnd.gauss(0, 1) for _ in range(3)]).normalized()
+        walk(core + d * 0.05, d, P.get("fil_steps", 24), 0)
+    if P.get("core_r", 0) > 0:
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=P["core_r"], location=core)
+        cs = bpy.context.active_object
+        cm = bpy.data.materials.new("hotcore"); cm.use_nodes = True
+        ce = cm.node_tree.nodes.new("ShaderNodeEmission")
+        ce.inputs["Color"].default_value = P.get("halo_hot", [1.0, 0.62, 0.32]) + [1]
+        ce.inputs["Strength"].default_value = P.get("core_emit", 30.0)
+        cm.node_tree.links.new(ce.outputs[0], cm.node_tree.nodes["Material Output"].inputs["Surface"])
+        cs.data.materials.append(cm)
+
+if P.get("inner_r", 0) > 0:
+    # paperweight: a tinted glass core inside a clear glass shell
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=192, ring_count=96, radius=P["inner_r"])
+    ic = bpy.context.active_object
+    bpy.ops.object.shade_smooth()
+    im = bpy.data.materials.new("innercore"); im.use_nodes = True
+    it = im.node_tree
+    ib = it.nodes["Principled BSDF"]
+    ib.inputs["Base Color"].default_value = (1, 1, 1, 1)
+    ib.inputs["Transmission Weight"].default_value = 1.0
+    ib.inputs["Roughness"].default_value = 0.0
+    ib.inputs["IOR"].default_value = P.get("inner_ior", 1.02)
+    iab = it.nodes.new("ShaderNodeVolumeAbsorption")
+    iab.inputs["Color"].default_value = P.get("inner_rgb", P.get("absorb_rgb", [1, 0.6, 0.4])) + [1]
+    iab.inputs["Density"].default_value = P.get("inner_absorb", 3.0)
+    it.links.new(iab.outputs[0], it.nodes["Material Output"].inputs["Volume"])
+    ic.data.materials.append(im)
+
 orb_only = bpy.data.collections.new("orb only")
 orb_only.objects.link(orb)
+if P.get("inner_r", 0) > 0: orb_only.objects.link(ic)
 
 if P.get("mode") in ("sss", "glass"):
     # light-filled coloured glass: translucent body under a clear glass coat
@@ -249,6 +353,9 @@ if P.get("ring", 0) > 0:
     rg.data.materials.append(rmat)
     rg.visible_camera = False
     rg.light_linking.receiver_collection = orb_only
+    if P.get("ring_reflect_only"):
+        rmat.cycles.emission_sampling = "NONE"
+        rg.visible_diffuse = rg.visible_transmission = rg.visible_volume_scatter = False
 
 # extra lights: [x, y, z, width, height, strength]; they light the orb but aren't seen in it
 for e in P.get("lights", []):
@@ -277,6 +384,10 @@ for px_, py_, pz_, pr, pst in P.get("pins", []):
 # [angle_from_deg, angle_to_deg, z_from, z_to, radius, strength]
 import bmesh
 for a0, a1, z0, z1, rad, st in P.get("arcs", []):
+    # build each arc centred on angle 0 and rotate the object into place, so the
+    # feathering's arctan never wraps at 180 degrees mid-arc
+    ac = (a0 + a1) / 2
+    a0, a1 = a0 - ac, a1 - ac
     me = bpy.data.meshes.new("arc")
     bm = bmesh.new()
     n = 48
@@ -289,6 +400,7 @@ for a0, a1, z0, z1, rad, st in P.get("arcs", []):
         bm.faces.new((verts[i][0], verts[i + 1][0], verts[i + 1][1], verts[i][1]))
     bm.to_mesh(me); bm.free()
     ao = bpy.data.objects.new("arc", me)
+    ao.rotation_euler = (0, 0, math.radians(ac))
     scene.collection.objects.link(ao)
     am = bpy.data.materials.new("arc")
     am.use_nodes = True
@@ -308,6 +420,38 @@ for a0, a1, z0, z1, rad, st in P.get("arcs", []):
         amr.inputs["To Max"].default_value = st * (1 - P["arc_fade"])
         an.links.new(asep.outputs["Z"], amr.inputs["Value"])
         an.links.new(amr.outputs["Result"], aem.inputs["Strength"])
+    if P.get("arc_soft", 0) > 0:
+        # feather all four edges so the reflection has no hard cut
+        atc = an.nodes.new("ShaderNodeTexCoord")
+        asep = an.nodes.new("ShaderNodeSeparateXYZ")
+        an.links.new(atc.outputs["Object"], asep.inputs[0])
+        at2 = an.nodes.new("ShaderNodeMath"); at2.operation = "ARCTAN2"
+        an.links.new(asep.outputs["Y"], at2.inputs[0]); an.links.new(asep.outputs["X"], at2.inputs[1])
+        def norm(src, lo, hi):
+            r = an.nodes.new("ShaderNodeMapRange")
+            r.inputs["From Min"].default_value, r.inputs["From Max"].default_value = lo, hi
+            an.links.new(src, r.inputs["Value"]); return r.outputs["Result"]
+        def feather(src):
+            r = an.nodes.new("ShaderNodeMapRange"); r.interpolation_type = "SMOOTHSTEP"
+            r.inputs["From Min"].default_value, r.inputs["From Max"].default_value = 0.0, P["arc_soft"]
+            an.links.new(src, r.inputs["Value"]); return r.outputs["Result"]
+        def inv(src):
+            r = an.nodes.new("ShaderNodeMath"); r.operation = "SUBTRACT"; r.inputs[0].default_value = 1.0
+            an.links.new(src, r.inputs[1]); return r.outputs[0]
+        u = norm(at2.outputs[0], math.radians(a0), math.radians(a1))
+        v = norm(asep.outputs["Z"], z0, z1)
+        acc = None
+        for f in (feather(u), feather(inv(u)), feather(v), feather(inv(v))):
+            if acc is None: acc = f; continue
+            mm = an.nodes.new("ShaderNodeMath"); mm.operation = "MULTIPLY"
+            an.links.new(acc, mm.inputs[0]); an.links.new(f, mm.inputs[1]); acc = mm.outputs[0]
+        aem.inputs["Strength"].default_value = st
+        # fade to see-through rather than to black, so the strip never blocks what lies behind it
+        tr = an.nodes.new("ShaderNodeBsdfTransparent")
+        mx = an.nodes.new("ShaderNodeMixShader")
+        an.links.new(acc, mx.inputs["Fac"])
+        an.links.new(tr.outputs[0], mx.inputs[1]); an.links.new(aem.outputs[0], mx.inputs[2])
+        an.links.new(mx.outputs[0], an.nodes["Material Output"].inputs["Surface"])
     am.cycles.emission_sampling = "NONE"
     ao.data.materials.append(am)
     ao.visible_camera = False
@@ -402,7 +546,97 @@ if P.get("room"):
     world.node_tree.links.new(mr.outputs["Result"], rr.inputs["Fac"])
     world.node_tree.links.new(rr.outputs["Color"], wn["Background"].inputs["Color"])
     wn["Background"].inputs["Strength"].default_value = R.get("strength", 1.0)
+if P.get("sea"):
+    # seascape: physical sky with a low sun over a procedural ocean; the scene's up is +Y
+    S = P["sea"]
+    for n in list(wn):
+        if n.type != "OUTPUT_WORLD" and n.type != "BACKGROUND": wn.remove(n)
+    # sky built from the view direction (Y up): deep blue overhead, warm glow at the horizon, a sun
+    L = world.node_tree.links
+    tc3 = wn.new("ShaderNodeTexCoord")
+    sep3 = wn.new("ShaderNodeSeparateXYZ"); L.new(tc3.outputs["Generated"], sep3.inputs[0])
+    mr3 = wn.new("ShaderNodeMapRange")
+    mr3.inputs["From Min"].default_value, mr3.inputs["From Max"].default_value = -1, 1
+    L.new(sep3.outputs["Y"], mr3.inputs["Value"])
+    ramp3 = wn.new("ShaderNodeValToRGB")
+    el = ramp3.color_ramp.elements
+    el[0].position, el[0].color = 0.0, S.get("below", [0.02, 0.03, 0.04]) + [1]
+    el[1].position, el[1].color = 1.0, S.get("zenith", [0.05, 0.12, 0.35]) + [1]
+    for pos, col in S.get("stops", [[0.5, [1.0, 0.55, 0.3]], [0.53, [0.55, 0.45, 0.5]], [0.62, [0.15, 0.25, 0.5]]]):
+        e = el.new(pos); e.color = col + [1]
+    L.new(mr3.outputs["Result"], ramp3.inputs["Fac"])
+    sd = Vector(S.get("sun_dir", [-0.6, 0.12, -0.8])).normalized()
+    dp = wn.new("ShaderNodeVectorMath"); dp.operation = "DOT_PRODUCT"
+    dp.inputs[1].default_value = sd
+    L.new(tc3.outputs["Generated"], dp.inputs[0])
+    sp = wn.new("ShaderNodeMath"); sp.operation = "POWER"; sp.use_clamp = False
+    mx0 = wn.new("ShaderNodeMath"); mx0.operation = "MAXIMUM"; mx0.inputs[1].default_value = 0.0
+    L.new(dp.outputs["Value"], mx0.inputs[0]); L.new(mx0.outputs[0], sp.inputs[0])
+    sp.inputs[1].default_value = S.get("sun_sharp", 800)
+    sm = wn.new("ShaderNodeMath"); sm.operation = "MULTIPLY"; sm.inputs[1].default_value = S.get("sun_int", 60)
+    L.new(sp.outputs[0], sm.inputs[0])
+    gp = wn.new("ShaderNodeMath"); gp.operation = "POWER"; gp.inputs[1].default_value = S.get("glow_sharp", 12)
+    L.new(mx0.outputs[0], gp.inputs[0])
+    gm = wn.new("ShaderNodeMath"); gm.operation = "MULTIPLY"; gm.inputs[1].default_value = S.get("glow_int", 1.5)
+    L.new(gp.outputs[0], gm.inputs[0])
+    tot = wn.new("ShaderNodeMath"); tot.operation = "ADD"
+    L.new(sm.outputs[0], tot.inputs[0]); L.new(gm.outputs[0], tot.inputs[1])
+    sc = wn.new("ShaderNodeMix"); sc.data_type = "RGBA"; sc.blend_type = "ADD"
+    sc.inputs["Factor"].default_value = 1.0
+    sunc = wn.new("ShaderNodeMix"); sunc.data_type = "RGBA"; sunc.blend_type = "MULTIPLY"
+    sunc.inputs["Factor"].default_value = 1.0
+    sunc.inputs[6].default_value = S.get("sun_col", [1.0, 0.75, 0.5]) + [1]
+    cv = wn.new("ShaderNodeCombineColor")
+    for i in range(3): L.new(tot.outputs[0], cv.inputs[i])
+    L.new(cv.outputs[0], sunc.inputs[7])
+    L.new(ramp3.outputs["Color"], sc.inputs[6]); L.new(sunc.outputs[2], sc.inputs[7])
+    L.new(sc.outputs[2], wn["Background"].inputs["Color"])
+    wn["Background"].inputs["Strength"].default_value = S.get("strength", 0.15)
+    # ocean: a large plane below the orb, rotated so its normal points along +Y
+    bpy.ops.mesh.primitive_plane_add(size=2, location=(0, -S.get("depth", 2.5), 0))
+    sea = bpy.context.active_object
+    sea.rotation_euler = (math.radians(-90), 0, 0)
+    oc = sea.modifiers.new("ocean", "OCEAN")
+    oc.geometry_mode = "GENERATE"
+    oc.size = S.get("size", 6.0)
+    oc.spatial_size = S.get("spatial", 40)
+    oc.repeat_x = oc.repeat_y = S.get("repeat", 6)
+    oc.resolution = S.get("res", 12)
+    oc.wave_scale = S.get("wave", 1.5)
+    oc.choppiness = S.get("chop", 1.2)
+    oc.wind_velocity = S.get("wind", 12)
+    oc.random_seed = S.get("seed", 3)
+    sea.location = (-oc.size * oc.repeat_x / 2 * 0 , -S.get("depth", 2.5), 0)
+    wm = bpy.data.materials.new("water"); wm.use_nodes = True
+    wb = wm.node_tree.nodes["Principled BSDF"]
+    wb.inputs["Base Color"].default_value = S.get("water", [0.005, 0.03, 0.045]) + [1]
+    wb.inputs["Roughness"].default_value = S.get("water_rough", 0.04)
+    wb.inputs["IOR"].default_value = 1.33
+    sea.data.materials.append(wm)
+    sea.visible_camera = False
+    bpy.ops.object.shade_smooth()
 scene.world = world
+for bd in P.get("backdrops", []):
+    # an image on a plane, seen only through the glass: [path, z, width, strength, flip]
+    path, bz, bw, bst = bd[:4]
+    img = bpy.data.images.load(path)
+    asp = img.size[1] / img.size[0]
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 0, bz))
+    bo = bpy.context.active_object
+    bo.scale = (bw, bw * asp, 1)
+    if bz > 0: bo.rotation_euler = (math.radians(180), 0, 0)
+    if len(bd) > 4 and bd[4]: bo.rotation_euler[2] += math.radians(180)
+    bm_ = bpy.data.materials.new("backdrop"); bm_.use_nodes = True
+    bn = bm_.node_tree
+    bn.nodes.remove(bn.nodes["Principled BSDF"])
+    ti = bn.nodes.new("ShaderNodeTexImage"); ti.image = img
+    be = bn.nodes.new("ShaderNodeEmission"); be.inputs["Strength"].default_value = bst
+    bn.links.new(ti.outputs["Color"], be.inputs["Color"])
+    bn.links.new(be.outputs[0], bn.nodes["Material Output"].inputs["Surface"])
+    bo.data.materials.append(bm_)
+    bo.visible_camera = False
+    bo.visible_diffuse = False
+    bo.visible_glossy = P.get("backdrop_glossy", True)  # False: reflections skip it, only refraction sees it
 
 cam = bpy.data.cameras.new("cam")
 cam.type = "ORTHO"
@@ -431,5 +665,23 @@ scene.render.image_settings.color_mode = "RGBA"
 scene.view_settings.view_transform = "AgX"
 scene.view_settings.look = P.get("look", "None")
 scene.view_settings.exposure = P.get("exposure", 0.0)
+if P.get("glare", 0) > 0:
+    # bloom: light from the bright core and filaments spills softly, as in a real lens
+    try:
+        ng = bpy.data.node_groups.new("comp", "CompositorNodeTree")
+        scene.compositing_node_group = ng
+        ng.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
+        rl = ng.nodes.new("CompositorNodeRLayers")
+        gl = ng.nodes.new("CompositorNodeGlare")
+        for k, v in (("Type", "Bloom"), ("Quality", "High")):
+            if k in gl.inputs: gl.inputs[k].default_value = v
+        if "Threshold" in gl.inputs: gl.inputs["Threshold"].default_value = P.get("glare_thresh", 1.0)
+        if "Strength" in gl.inputs: gl.inputs["Strength"].default_value = P["glare"]
+        if "Size" in gl.inputs: gl.inputs["Size"].default_value = P.get("glare_size", 0.5)
+        go = ng.nodes.new("NodeGroupOutput")
+        ng.links.new(rl.outputs["Image"], gl.inputs["Image"])
+        ng.links.new(gl.outputs["Image"], go.inputs[0])
+    except Exception as e:
+        print("GLARE FAILED", e)
 scene.render.filepath = OUT
 bpy.ops.render.render(write_still=True)
