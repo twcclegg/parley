@@ -1,20 +1,20 @@
 {
   "fill": {
-    "solid": "srgb:0.00000,0.00000,0.00000,1.00000"
+    "solid": "srgb:0.03500,0.02200,0.01800,1.00000"
   },
   "groups": [
     {
       "layers": [
         {
-          "image-name": "orb.svg",
+          "image-name": "orb.png",
           "name": "orb"
         }
       ],
+      "specular": false,
       "shadow": {
-        "kind": "layer-color",
-        "opacity": 0.5
+        "kind": "neutral",
+        "opacity": 0.4
       },
-      "specular": true,
       "translucency": {
         "enabled": false,
         "value": 0.0
@@ -24,20 +24,36 @@
     {
       "layers": [
         {
-          "image-name": "bubble.svg",
+          "image-name": "middle.png",
           "name": "bubble"
         }
       ],
+      "specular": false,
       "shadow": {
-        "kind": "neutral",
-        "opacity": 0.5
+        "kind": "none",
+        "opacity": 0
       },
-      "specular": true,
       "translucency": {
-        "enabled": true,
-        "value": 0.3
+        "enabled": false,
+        "value": 0.0
+      }
+    },
+    {
+      "layers": [
+        {
+          "image-name": "bg.png",
+          "name": "background"
+        }
+      ],
+      "specular": false,
+      "shadow": {
+        "kind": "none",
+        "opacity": 0
       },
-      "blur-material": 0.4
+      "translucency": {
+        "enabled": false,
+        "value": 0.0
+      }
     }
   ],
   "supported-platforms": {

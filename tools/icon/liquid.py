@@ -20,7 +20,7 @@ def P(px, py):
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
 
-# ---------- outline (bubble.svg path), corners rounded by corner cutting
+# ---------- the speech-bubble outline, corners rounded
 def arc(cx, cy, r, a0, a1, n=96):
     return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * i / n)),
              cy + r * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]

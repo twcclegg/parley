@@ -13,4 +13,6 @@
 
 `orb_colour.py` checks a render's main colour against #D97757. `scene.py`, `glass.py` and `orb3d.py` made earlier versions of the icon.
 
-The Python scripts need NumPy and Pillow, and `back.py` also needs ImageMagick. The iPhone icon is `Icon/Parley.icon`; edit it in Icon Composer.
+The Python scripts need NumPy and Pillow, and `back.py` also needs ImageMagick.
+
+The iPhone icon, `Icon/Parley.icon`, uses the same three images scaled up 1.107x about the centre (its bubble is drawn at 0.93 of the artwork, the visionOS one at 0.84), with Icon Composer's glass effects off, so both platforms show the same rendered glass.
